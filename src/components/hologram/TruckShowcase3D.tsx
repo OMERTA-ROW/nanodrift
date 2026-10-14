@@ -179,7 +179,7 @@ function ScanPlane({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
 
 export default function TruckShowcase3D({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
+    <Canvas shadows dpr={[1, 2]} camera={{ position: window.innerWidth < 640 ? [8.5, 4, 8.5] : [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
       <color attach="background" args={["#050307"]} />
       <fog attach="fog" args={["#050307", 9, 22]} />
       <ambientLight intensity={0.25} />

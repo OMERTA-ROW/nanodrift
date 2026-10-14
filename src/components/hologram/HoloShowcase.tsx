@@ -21,16 +21,16 @@ export function HoloShowcase() {
           </Suspense>
         </ClientOnly>
       </div>
-      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[60%] flex-col gap-1">
+      <div className="pointer-events-none absolute left-4 top-4 flex max-w-[85%] flex-col gap-1">
         <span className="eyebrow">{holo ? "Hologram · live internals (simulated)" : "Heavy-duty diesel · showcase"}</span>
         <span className="text-xs text-muted-foreground">Drag to spin · scroll or pinch to zoom · right-drag to move · tap the truck</span>
       </div>
       {holo && (
-        <ul className="pointer-events-none absolute bottom-4 left-4 space-y-1 text-xs">
+        <ul className="pointer-events-none absolute bottom-16 left-4 space-y-1 text-xs">
           {legend.map(([l, c]) => <li key={l} className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${c}`} />{l}</li>)}
         </ul>
       )}
-      <button onClick={() => setHolo((h) => !h)} className="btn-neon absolute right-4 top-4 !px-4 !py-2 text-xs">
+      <button onClick={() => setHolo((h) => !h)} className="btn-neon absolute bottom-4 left-4 !px-4 !py-2 text-xs">
         {holo ? "Show paint" : "See-through hologram"}
       </button>
     </div>

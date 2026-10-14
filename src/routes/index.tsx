@@ -43,7 +43,7 @@ function Home() {
               <AgentBubble className="max-w-sm">Spin the truck, zoom in, then tap it. I'll show you what's happening under the paint.</AgentBubble>
             </div>
           </div>
-          <HoloShowcase />
+          <div className="order-first lg:order-none"><HoloShowcase /></div>
         </div>
       </section>
 
