@@ -40,7 +40,7 @@ function Home() {
               <Link to="/pre-diagnose" className="btn-outline-neon">Free Pre-Diagnose</Link>
             </div>
             <div className="mt-8">
-              <AgentBubble className="max-w-sm">Spin the truck, zoom in, then tap it. I'll show you what's happening under the paint.</AgentBubble>
+              <AgentBubble className="max-w-sm">Spin the truck and zoom in. Soon I'll show you what's happening under the paint.</AgentBubble>
             </div>
           </div>
           <div className="order-first lg:order-none"><HoloShowcase /></div>
