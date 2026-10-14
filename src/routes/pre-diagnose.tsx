@@ -8,6 +8,7 @@ import { areaLabel, checkCoverage, DEVICE_NOTE, explainCode, matchSymptoms, type
 type Search = { make?: string | undefined; model?: string | undefined; year?: number | undefined };
 
 export const Route = createFileRoute("/pre-diagnose")({
+  staticData: { sitemap: true },
   validateSearch: (s: Record<string, unknown>): Search => ({
     make: typeof s["make"] === "string" ? s["make"] : undefined,
     model: typeof s["model"] === "string" ? s["model"] : undefined,

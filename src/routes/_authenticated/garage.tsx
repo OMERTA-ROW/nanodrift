@@ -8,6 +8,7 @@ import { checkCoverage } from "@/lib/nanodrift-data";
 import { formatPrice, plans } from "@/lib/catalog";
 
 export const Route = createFileRoute("/_authenticated/garage")({
+  staticData: { sitemap: false },
   head: () => seo("My Garage — NanoDrift", "Your vehicles, plan and signed agreements."),
   component: Garage,
 });

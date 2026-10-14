@@ -7,6 +7,7 @@ import { LayeredTeardown } from "@/components/LayeredTeardown";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/features")({
+  staticData: { sitemap: true },
   head: () => seo("Features — NanoDrift", "Live engine map, 3D hologram vehicle, wiring diagnostics, safety-governed power boost, Diablo Kit, truck regen, Ghost Security and Vanishing Mode."),
   component: Features,
 });

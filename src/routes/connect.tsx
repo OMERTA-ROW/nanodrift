@@ -4,6 +4,7 @@ import { PageHero, Section, seo } from "@/components/Section";
 import { AgentBubble } from "@/components/brand/Agent";
 
 export const Route = createFileRoute("/connect")({
+  staticData: { sitemap: true },
   head: () => seo("Connect your AI — NanoDrift Connector", "Add the NanoDrift Connector to Claude, ChatGPT or any AI assistant that supports custom connectors."),
   component: Connect,
 });

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 type Search = { mode?: "login" | "signup" | undefined; redirect?: string | undefined };
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): Search => ({
     mode: s["mode"] === "signup" ? "signup" : s["mode"] === "login" ? "login" : undefined,
     redirect: typeof s["redirect"] === "string" && s["redirect"].startsWith("/") && !s["redirect"].startsWith("//") ? s["redirect"] : undefined,

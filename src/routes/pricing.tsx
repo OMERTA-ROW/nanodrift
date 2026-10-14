@@ -5,6 +5,7 @@ import { kits, plans } from "@/lib/catalog";
 import { KitCard } from "@/components/KitCard";
 
 export const Route = createFileRoute("/pricing")({
+  staticData: { sitemap: true },
   head: () => seo("Pricing — NanoDrift", "NanoDrift kits from $149 — Standard $149, Heavy-Duty $199, Pro $249 — plus the Standard subscription at $99/year."),
   component: Pricing,
 });

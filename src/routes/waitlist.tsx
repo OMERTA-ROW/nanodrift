@@ -6,6 +6,7 @@ import { kits, plans, products } from "@/lib/catalog";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/waitlist")({
+  staticData: { sitemap: true },
   validateSearch: (s: Record<string, unknown>): { interest?: string | undefined } => ({
     interest: typeof s["interest"] === "string" ? s["interest"] : undefined,
   }),
