@@ -27,7 +27,7 @@ export function DriftCar({ className }: { className?: string }) {
 
 export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
   if (LOGO_IMAGE_SRC) {
-    return <img src={LOGO_IMAGE_SRC} alt="NanoDrift" className={cn(compact ? "h-10 w-auto" : "w-full max-w-md", "rounded-md object-contain", className)} />;
+    return <img src={LOGO_IMAGE_SRC} alt="NanoDrift" className={cn(compact ? "h-10 w-auto" : "w-full max-w-md", "rounded-md object-contain mix-blend-screen", className)} />;
   }
   return (
     <div className={cn("flex items-center gap-2", className)} aria-label="NanoDrift">

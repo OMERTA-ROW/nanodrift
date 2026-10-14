@@ -5,7 +5,7 @@ import { useId, type ReactNode } from "react";
 export function AgentHelmet({ className }: { className?: string }) {
   const id = useId().replace(/:/g, "");
   if (AGENT_IMAGE_SRC) {
-    return <img src={AGENT_IMAGE_SRC} alt="NanoDrift AI agent" className={cn("object-contain", className)} />;
+    return <img src={AGENT_IMAGE_SRC} alt="NanoDrift AI agent" className={cn("object-contain mix-blend-screen", className)} />;
   }
   return (
     <svg viewBox="0 0 200 200" className={cn("svg-glow text-primary", className)} fill="none" stroke="currentColor" strokeLinecap="round" role="img" aria-label="NanoDrift AI agent">
