@@ -10,4 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Brand image slots live in src/lib/brand.ts (null = SVG fallback); swap in uploaded logo/agent there so every usage updates at once.
+- Shared site content (features, safety rules, coverage, trouble codes) lives in src/lib/nanodrift-data.ts; pages and the MCP connector both read it so answers match the site.
+- MCP connector: tools in src/lib/mcp/tools (one per file), registered in src/lib/mcp/index.ts; public by owner choice, so tools only use the anon client and existing RLS.
+- Accounts: Cloud auth; signed-in pages live under src/routes/_authenticated (client-side gate). Subscriptions/agreements are read-only to users (written by admin/backend only).
 - Products and plans are data in src/lib/catalog.ts; pages render from it so prices stay in one place (covered by src/test/catalog.test.ts).
