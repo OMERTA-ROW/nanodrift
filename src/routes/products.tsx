@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero, Section, seo } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { AgentBubble } from "@/components/brand/Agent";
@@ -18,6 +18,7 @@ function Products() {
         <div className="grid gap-14 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
+        <div className="mt-14 flex flex-wrap gap-3"><Link to="/pricing" className="btn-neon">Next: pick a plan</Link><Link to="/pre-diagnose" className="btn-outline-neon">Pre-Diagnose first</Link></div>
       </Section>
     </>
   );
