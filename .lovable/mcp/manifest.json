@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.5",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "nanodrift-platform",
+      "version": "0.1.0",
+      "title": "NanoDrift Platform"
+    },
+    "tools": [
+      {
+        "name": "get_products",
+        "title": "Get adapters",
+        "description": "List the NanoDrift adapter lineup (OBD-II, J1939 heavy-duty, Marine, Aviation coming soon).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_pricing",
+        "title": "Get pricing",
+        "description": "List NanoDrift subscription plans with yearly prices and which ones require a signed agreement.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "check_vehicle_coverage",
+        "title": "Check vehicle coverage",
+        "description": "Check whether a vehicle (make, model, year) is covered at launch or in a later rollout phase.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "make": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60,
+              "description": "Vehicle make, e.g. Ford"
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60,
+              "description": "Vehicle model, e.g. F-150"
+            },
+            "year": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100,
+              "description": "Model year, e.g. 2018"
+            }
+          },
+          "required": [
+            "make",
+            "model",
+            "year"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_features",
+        "title": "Get features",
+        "description": "List NanoDrift platform features.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_safety_rules",
+        "title": "Get safety rules",
+        "description": "List the safety interlocks NanoDrift enforces before any change reaches the vehicle.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "explain_trouble_code",
+        "title": "Explain trouble code",
+        "description": "Give a plain-language general explanation of an OBD-II trouble code such as P0420.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 10,
+              "description": "OBD-II code, e.g. P0420"
+            }
+          },
+          "required": [
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "join_waitlist",
+        "title": "Join waitlist",
+        "description": "Add a person to the NanoDrift launch waitlist with their name, email and vehicle.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Full name"
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 255,
+              "format": "email",
+              "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "description": "Email address"
+            },
+            "vehicle": {
+              "description": "Vehicle, e.g. 2019 Ford F-150",
+              "type": "string",
+              "maxLength": 120
+            }
+          },
+          "required": [
+            "name",
+            "email"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

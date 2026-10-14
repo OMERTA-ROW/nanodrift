@@ -10,18 +10,39 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PreDiagnoseRouteImport } from './routes/pre-diagnose'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
 import { Route as LegalDocRouteImport } from './routes/legal.$doc'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoverageRoute = CoverageRouteImport.update({
@@ -32,6 +53,16 @@ const CoverageRoute = CoverageRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreDiagnoseRoute = PreDiagnoseRouteImport.update({
+  id: '/pre-diagnose',
+  path: '/pre-diagnose',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -59,6 +90,17 @@ const WaitlistRoute = WaitlistRouteImport.update({
   path: '/waitlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedGarageRoute = AuthenticatedGarageRouteImport.update({
+  id: '/garage',
+  path: '/garage',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const LegalDocRoute = LegalDocRouteImport.update({
   id: '/legal/$doc',
   path: '/legal/$doc',
@@ -67,83 +109,127 @@ const LegalDocRoute = LegalDocRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
+  '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
+  '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
+  '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_authenticated/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/connect'
     | '/coverage'
     | '/features'
+    | '/mcp'
+    | '/pre-diagnose'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
+    | '/garage'
     | '/legal/$doc'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/connect'
     | '/coverage'
     | '/features'
+    | '/mcp'
+    | '/pre-diagnose'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
+    | '/garage'
     | '/legal/$doc'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/connect'
     | '/coverage'
     | '/features'
+    | '/mcp'
+    | '/pre-diagnose'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
+    | '/_authenticated/garage'
     | '/legal/$doc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ConnectRoute: typeof ConnectRoute
   CoverageRoute: typeof CoverageRoute
   FeaturesRoute: typeof FeaturesRoute
+  McpRoute: typeof McpRoute
+  PreDiagnoseRoute: typeof PreDiagnoseRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   SafetyRoute: typeof SafetyRoute
   SupportRoute: typeof SupportRoute
   WaitlistRoute: typeof WaitlistRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LegalDocRoute: typeof LegalDocRoute
 }
 
@@ -154,6 +240,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/coverage': {
@@ -168,6 +275,20 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pre-diagnose': {
+      id: '/pre-diagnose'
+      path: '/pre-diagnose'
+      fullPath: '/pre-diagnose'
+      preLoaderRoute: typeof PreDiagnoseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -205,6 +326,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/garage': {
+      id: '/_authenticated/garage'
+      path: '/garage'
+      fullPath: '/garage'
+      preLoaderRoute: typeof AuthenticatedGarageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/legal/$doc': {
       id: '/legal/$doc'
       path: '/legal/$doc'
@@ -215,15 +350,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedGarageRoute: AuthenticatedGarageRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ConnectRoute: ConnectRoute,
   CoverageRoute: CoverageRoute,
   FeaturesRoute: FeaturesRoute,
+  McpRoute: McpRoute,
+  PreDiagnoseRoute: PreDiagnoseRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   SafetyRoute: SafetyRoute,
   SupportRoute: SupportRoute,
   WaitlistRoute: WaitlistRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LegalDocRoute: LegalDocRoute,
 }
 export const routeTree = rootRouteImport

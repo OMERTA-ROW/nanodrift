@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Section, seo } from "@/components/Section";
 import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
 import { plans, products } from "@/lib/catalog";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/waitlist")({
   validateSearch: (s: Record<string, unknown>): { interest?: string | undefined } => ({
@@ -17,6 +18,8 @@ const field = "w-full rounded-md border bg-background px-4 py-3 text-sm outline-
 function Waitlist() {
   const { interest } = Route.useSearch();
   const [done, setDone] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
   const options = [...products.map((p) => p.name), ...plans.map((p) => p.name)];
 
   return (
@@ -33,10 +36,19 @@ function Waitlist() {
             <AgentBubble>You're on the list, {done}. I'll reach out the moment NanoDrift is ready to ship.</AgentBubble>
           ) : (
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                const name = String(new FormData(e.currentTarget).get("name") || "driver").trim();
-                setDone(name.split(" ")[0] ?? name);
+                const f = new FormData(e.currentTarget);
+                const name = String(f.get("name") || "").trim();
+                setBusy(true); setErr(null);
+                const { error } = await supabase.from("waitlist").insert({
+                  name, email: String(f.get("email")).trim(),
+                  vehicle: String(f.get("vehicle") || "").trim() || null,
+                  interest: String(f.get("interest") || "") || null,
+                });
+                setBusy(false);
+                if (error) return setErr("Couldn't save your spot. Check your email and try again.");
+                setDone(name.split(" ")[0] || name);
               }}
               className="relative z-[2] space-y-4"
             >
@@ -46,7 +58,8 @@ function Waitlist() {
               <select name="interest" defaultValue={interest && options.includes(interest) ? interest : options[0]} className={field}>
                 {options.map((o) => <option key={o}>{o}</option>)}
               </select>
-              <button type="submit" className="btn-neon w-full">Reserve my spot</button>
+              {err && <p className="text-sm text-gold">{err}</p>}
+              <button type="submit" disabled={busy} className="btn-neon w-full">{busy ? "Saving…" : "Reserve my spot"}</button>
             </form>
           )}
         </div>
