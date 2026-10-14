@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PreDiagnoseRouteImport } from './routes/pre-diagnose'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -54,6 +55,11 @@ const CoverageRoute = CoverageRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/maintenance': typeof MaintenanceRoute
   '/mcp': typeof McpRoute
   '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/maintenance': typeof MaintenanceRoute
   '/mcp': typeof McpRoute
   '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/connect': typeof ConnectRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/maintenance': typeof MaintenanceRoute
   '/mcp': typeof McpRoute
   '/pre-diagnose': typeof PreDiagnoseRoute
   '/pricing': typeof PricingRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/coverage'
     | '/features'
+    | '/maintenance'
     | '/mcp'
     | '/pre-diagnose'
     | '/pricing'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/coverage'
     | '/features'
+    | '/maintenance'
     | '/mcp'
     | '/pre-diagnose'
     | '/pricing'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/coverage'
     | '/features'
+    | '/maintenance'
     | '/mcp'
     | '/pre-diagnose'
     | '/pricing'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   ConnectRoute: typeof ConnectRoute
   CoverageRoute: typeof CoverageRoute
   FeaturesRoute: typeof FeaturesRoute
+  MaintenanceRoute: typeof MaintenanceRoute
   McpRoute: typeof McpRoute
   PreDiagnoseRoute: typeof PreDiagnoseRoute
   PricingRoute: typeof PricingRoute
@@ -288,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -388,6 +408,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConnectRoute: ConnectRoute,
   CoverageRoute: CoverageRoute,
   FeaturesRoute: FeaturesRoute,
+  MaintenanceRoute: MaintenanceRoute,
   McpRoute: McpRoute,
   PreDiagnoseRoute: PreDiagnoseRoute,
   PricingRoute: PricingRoute,
