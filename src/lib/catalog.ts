@@ -55,39 +55,32 @@ export interface Plan {
   agreement: boolean;
 }
 
+export interface Kit {
+  id: string;
+  name: string;
+  price: number;
+  blurb: string;
+  includes: string[];
+}
+
+/** Hardware kits — the main public offer. */
+export const kits: Kit[] = [
+  { id: "standard-kit", name: "NanoDrift Standard Kit", price: 149, blurb: "Cars & light trucks (1996+).", includes: ["NanoDrift core device", "16-pin OBD-II adapter", "USB-C to phone or laptop"] },
+  { id: "heavy-duty-kit", name: "NanoDrift Heavy-Duty Kit", price: 199, blurb: "Heavy-duty & big-rig trucks.", includes: ["NanoDrift core device", "9-pin Deutsch (J1939) adapter", "USB-C to phone or laptop"] },
+  { id: "pro-kit", name: "NanoDrift Pro Kit", price: 249, blurb: "Cars, light trucks and heavy-duty — one kit.", includes: ["NanoDrift core device", "16-pin OBD-II adapter", "9-pin Deutsch (J1939) adapter"] },
+];
+
+/** The only publicly shown subscription. Id stays "core" to match stored subscriptions. */
 export const plans: Plan[] = [
   {
     id: "core",
-    name: "Core",
-    pricePerYear: 60,
+    name: "Standard",
+    pricePerYear: 99,
     blurb: "The foundation every NanoDrift runs on.",
     features: ["Full diagnostics", "Live engine map", "Vehicle health score", "Maintenance alerts", "AI agent"],
     agreement: false,
   },
-  {
-    id: "max-power",
-    name: "Max Power Unlock",
-    pricePerYear: 500,
-    blurb: "Safety-governed performance gains.",
-    features: ["Power boost with safety governor", "Diablo Kit legal tunes", "Auto-sync on new mods", "Signed agreement required"],
-    agreement: true,
-  },
-  {
-    id: "fleet",
-    name: "Premium / Fleet",
-    pricePerYear: 1000,
-    blurb: "Fleet-grade heavy-duty suite.",
-    features: ["DEF system diagnostics", "Derate management", "Manual regen at a safe time", "Fleet-grade suite"],
-    agreement: true,
-  },
-  {
-    id: "force-regen",
-    name: "AI Force Regen / Derate Fix",
-    pricePerYear: 2000,
-    blurb: "The agent handles regen and derate for you.",
-    features: ["AI-driven forced regen", "Derate resolution", "Safety-gated execution", "Signed agreement required"],
-    agreement: true,
-  },
 ];
 
 export const formatPrice = (p: number | null) => (p === null ? "Subscription" : `$${p.toLocaleString("en-US")}/yr`);
+export const formatKitPrice = (p: number) => `$${p.toLocaleString("en-US")}`;

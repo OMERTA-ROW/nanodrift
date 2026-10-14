@@ -4,7 +4,7 @@ export const legalDocs = [
     title: "Terms of Service",
     body: [
       "By using NanoDrift hardware or software you agree to operate it lawfully and only on vehicles you own or are authorized to modify.",
-      "Each unlock (Max Power, Premium / Fleet, AI Force Regen / Derate Fix) is your own personal license, tied to a signed agreement, and is non-transferable.",
+      "Any feature unlocked inside the app is your own personal license, tied to a signed agreement, and is non-transferable.",
       "Subscriptions are billed yearly. Features may evolve as the platform is updated.",
     ],
   },
