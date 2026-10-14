@@ -38,6 +38,50 @@ export type Database = {
         }
         Relationships: []
       }
+      diagnostic_logs: {
+        Row: {
+          created_at: string
+          health_score: number | null
+          id: string
+          notes: string | null
+          recorded_at: string
+          sensor_readings: Json | null
+          trouble_codes: Json | null
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          sensor_readings?: Json | null
+          trouble_codes?: Json | null
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          sensor_readings?: Json | null
+          trouble_codes?: Json | null
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_logs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -85,6 +129,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tune_records: {
+        Row: {
+          applied_at: string
+          created_at: string
+          id: string
+          parameters: Json | null
+          reverted: boolean
+          tune_name: string
+          tune_type: string | null
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          applied_at?: string
+          created_at?: string
+          id?: string
+          parameters?: Json | null
+          reverted?: boolean
+          tune_name: string
+          tune_type?: string | null
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          applied_at?: string
+          created_at?: string
+          id?: string
+          parameters?: Json | null
+          reverted?: boolean
+          tune_name?: string
+          tune_type?: string | null
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tune_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vehicles: {
         Row: {
