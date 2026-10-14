@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Brand image slots live in src/lib/brand.ts (null = SVG fallback); swap in uploaded logo/agent there so every usage updates at once.
+- Products and plans are data in src/lib/catalog.ts; pages render from it so prices stay in one place (covered by src/test/catalog.test.ts).
