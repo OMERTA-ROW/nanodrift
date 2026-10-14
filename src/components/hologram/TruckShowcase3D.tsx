@@ -126,7 +126,11 @@ function Truck({ holo = false }: { holo?: boolean }) {
       if (!m.isMesh) return;
       m.castShadow = true;
       const src = m.material as THREE.MeshStandardMaterial;
-      const paint = new THREE.MeshPhysicalMaterial({ map: src.map, color: "#2a2230", metalness: 0.75, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.4 });
+      const isWheel = /wheel/i.test(m.name) || /wheel/i.test(m.parent?.name ?? "");
+      void src;
+      const paint = isWheel
+        ? new THREE.MeshPhysicalMaterial({ color: "#151217", metalness: 0.9, roughness: 0.35, emissive: GOLD, emissiveIntensity: 0.06 })
+        : new THREE.MeshPhysicalMaterial({ color: "#0b0910", metalness: 0.85, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.8, sheen: 0.4, sheenColor: new THREE.Color(PURPLE_DEEP) });
       m.userData["paint"] = paint;
       solid.push(paint);
       const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.9, toneMapped: false }));
