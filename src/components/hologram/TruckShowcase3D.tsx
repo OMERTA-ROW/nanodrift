@@ -127,11 +127,11 @@ function Truck({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
       m.castShadow = true;
       const src = m.material as THREE.MeshStandardMaterial;
       const paint = new THREE.MeshPhysicalMaterial({ map: src.map, color: "#2a2230", metalness: 0.75, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.4 });
-      m.userData.paint = paint;
+      m.userData["paint"] = paint;
       solid.push(paint);
       const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.9, toneMapped: false }));
       m.add(e);
-      m.userData.edge = e;
+      m.userData["edge"] = e;
       edges.add();
     });
     return { model, box, solid, ghost, edges };
@@ -141,8 +141,8 @@ function Truck({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
     model.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
-      m.material = holo ? ghost : (m.userData.paint as THREE.Material);
-      (m.userData.edge as THREE.Object3D).visible = holo;
+      m.material = holo ? ghost : (m.userData["paint"] as THREE.Material);
+      (m.userData["edge"] as THREE.Object3D).visible = holo;
     });
   }, [holo, model, ghost]);
   void solid; void edges;
