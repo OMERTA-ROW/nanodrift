@@ -1,4 +1,4 @@
-import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -177,19 +177,9 @@ function ScanPlane({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
   );
 }
 
-function FitCamera() {
-  const { camera, size } = useThree();
-  useEffect(() => {
-    const k = size.width < 640 ? 1.6 : 1;
-    camera.position.set(5.2 * k, 2.6 * k, 5.2 * k);
-  }, [camera, size.width]);
-  return null;
-}
-
 export default function TruckShowcase3D({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
-      <FitCamera />
+    <Canvas shadows dpr={[1, 2]} camera={{ position: window.innerWidth < 640 ? [8.5, 4, 8.5] : [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
       <color attach="background" args={["#050307"]} />
       <fog attach="fog" args={["#050307", 9, 22]} />
       <ambientLight intensity={0.25} />
