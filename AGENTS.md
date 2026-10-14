@@ -14,3 +14,4 @@
 - MCP connector: tools in src/lib/mcp/tools (one per file), registered in src/lib/mcp/index.ts; public by owner choice, so tools only use the anon client and existing RLS.
 - Accounts: Cloud auth; signed-in pages live under src/routes/_authenticated (client-side gate). Subscriptions/agreements are read-only to users (written by admin/backend only).
 - Products and plans are data in src/lib/catalog.ts; pages render from it so prices stay in one place (covered by src/test/catalog.test.ts).
+- 3D scenes live in src/components/hologram and load via React.lazy inside <ClientOnly> so three.js never runs during SSR; models are bundled under public/models (CC0 only).
