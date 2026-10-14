@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Logo } from "@/components/brand/Logo";
-import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
+import { AgentBubble } from "@/components/brand/Agent";
 import { Section, seo } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { PlanCard } from "@/components/PlanCard";
