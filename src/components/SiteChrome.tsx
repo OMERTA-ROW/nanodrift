@@ -11,6 +11,7 @@ const nav = [
   { to: "/features", label: "Features" },
   { to: "/products", label: "Products" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/maintenance", label: "Maintenance" },
   { to: "/coverage", label: "Coverage" },
   { to: "/safety", label: "Safety" },
   { to: "/connect", label: "Connect AI" },
