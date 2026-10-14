@@ -38,7 +38,7 @@ export function AgentHelmet({ className }: { className?: string }) {
 export function AgentBubble({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn("flex items-start gap-3", className)}>
-      <div className="holo-panel grid h-12 w-12 shrink-0 place-items-center rounded-full p-1">
+      <div className="holo-panel grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full p-1">
         <AgentHelmet className="h-10 w-10" />
       </div>
       <div className="holo-panel relative rounded-tl-none px-4 py-3 text-sm text-secondary-foreground">
