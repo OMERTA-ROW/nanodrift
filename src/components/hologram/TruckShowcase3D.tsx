@@ -104,7 +104,7 @@ function Internals({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
   );
 }
 
-function Truck({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
+function Truck({ holo = false }: { holo?: boolean }) {
   const { scene } = useGLTF(MODEL_URL);
   const group = useRef<THREE.Group>(null);
   const { model, box, solid, ghost, edges } = useMemo(() => {
@@ -155,11 +155,31 @@ function Truck({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
   });
 
   return (
-    <group ref={group} onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); if (e.delta < 4) onToggle(); }} onPointerOver={() => (document.body.style.cursor = "pointer")} onPointerOut={() => (document.body.style.cursor = "")}>
+    <group ref={group}>
       <primitive object={model} />
       <Internals holo={holo} box={box} />
       <ScanPlane holo={holo} box={box} />
     </group>
+  );
+}
+
+function GlowHalo() {
+  const tex = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 256;
+    const g = c.getContext("2d")!;
+    const r = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    r.addColorStop(0, "rgba(168,85,247,0.55)");
+    r.addColorStop(0.5, "rgba(109,40,217,0.18)");
+    r.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = r; g.fillRect(0, 0, 256, 256);
+    return new THREE.CanvasTexture(c);
+  }, []);
+  return (
+    <mesh rotation-x={-Math.PI / 2} position={[0, 0.004, 0]}>
+      <planeGeometry args={[7.5, 7.5]} />
+      <meshBasicMaterial map={tex} transparent blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+    </mesh>
   );
 }
 
@@ -177,7 +197,7 @@ function ScanPlane({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
   );
 }
 
-export default function TruckShowcase3D({ holo, onToggle }: { holo: boolean; onToggle: () => void }) {
+export default function TruckShowcase3D() {
   return (
     <Canvas shadows dpr={[1, 2]} camera={{ position: window.innerWidth < 640 ? [8.5, 4, 8.5] : [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
       <color attach="background" args={["#050307"]} />
@@ -187,7 +207,7 @@ export default function TruckShowcase3D({ holo, onToggle }: { holo: boolean; onT
       <pointLight position={[-4, 2, -3]} intensity={30} color={PURPLE} />
       <pointLight position={[3, 1, -4]} intensity={14} color={GOLD} />
       <Suspense fallback={null}>
-        <Truck holo={holo} onToggle={onToggle} />
+        <Truck />
         <Environment resolution={256}>
           <Lightformer intensity={3} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[10, 4, 1]} />
           <Lightformer intensity={2.5} color={PURPLE} position={[-6, 1.5, 0]} rotation-y={Math.PI / 2} scale={[12, 1.2, 1]} />
@@ -200,6 +220,8 @@ export default function TruckShowcase3D({ holo, onToggle }: { holo: boolean; onT
         <MeshReflectorMaterial blur={[300, 80]} resolution={512} mixBlur={1} mixStrength={18} roughness={0.9} depthScale={1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#08060b" metalness={0.6} mirror={0.6} />
       </mesh>
       <gridHelper args={[16, 32, PURPLE_DEEP, "#1d1428"]} position={[0, 0.002, 0]} />
+      <GlowHalo />
+      <pointLight position={[0, 0.4, 0]} intensity={6} distance={5} color={PURPLE} />
       <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={10} blur={2.4} far={3} />
       <OrbitControls makeDefault enablePan enableDamping dampingFactor={0.08} minDistance={3.5} maxDistance={13} maxPolarAngle={Math.PI / 2.05} autoRotate autoRotateSpeed={0.6} target={[0, 0.7, 0]} />
     </Canvas>
