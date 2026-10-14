@@ -5,7 +5,7 @@ import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
 import { plans, products } from "@/lib/catalog";
 
 export const Route = createFileRoute("/waitlist")({
-  validateSearch: (s: Record<string, unknown>): { interest?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { interest?: string | undefined } => ({
     interest: typeof s["interest"] === "string" ? s["interest"] : undefined,
   }),
   head: () => seo("Join the waitlist — NanoDrift", "Reserve your NanoDrift adapter and plan before launch."),

@@ -23,7 +23,7 @@ function Support() {
             <div key={t} className="holo-panel holo-scan p-6">
               <h3 className="font-bold text-primary-glow">{t}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{d}</p>
-              <Link to="/waitlist" search={{ interest: t }} className="btn-outline-neon mt-5">{t === "Talk to a human" ? "Contact us" : "Coming at launch"}</Link>
+              <Link to="/waitlist" search={{ interest: t ?? "" }} className="btn-outline-neon mt-5">{t === "Talk to a human" ? "Contact us" : "Coming at launch"}</Link>
             </div>
           ))}
         </div>
