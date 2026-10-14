@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoverageRouteImport } from './routes/coverage'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as SafetyRouteImport } from './routes/safety'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as WaitlistRouteImport } from './routes/waitlist'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as LegalDocRouteImport } from './routes/legal.$doc'
 
 const IndexRoute = IndexRouteImport.update({
@@ -32,6 +34,11 @@ const CoverageRoute = CoverageRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -59,6 +66,12 @@ const WaitlistRoute = WaitlistRouteImport.update({
   path: '/waitlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LegalDocRoute = LegalDocRouteImport.update({
   id: '/legal/$doc',
   path: '/legal/$doc',
@@ -69,22 +82,26 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRoutesById {
@@ -92,11 +109,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/coverage': typeof CoverageRoute
   '/features': typeof FeaturesRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
   '/safety': typeof SafetyRoute
   '/support': typeof SupportRoute
   '/waitlist': typeof WaitlistRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/legal/$doc': typeof LegalDocRoute
 }
 export interface FileRouteTypes {
@@ -105,33 +124,39 @@ export interface FileRouteTypes {
     | '/'
     | '/coverage'
     | '/features'
+    | '/mcp'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
     | '/legal/$doc'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/coverage'
     | '/features'
+    | '/mcp'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
     | '/legal/$doc'
   id:
     | '__root__'
     | '/'
     | '/coverage'
     | '/features'
+    | '/mcp'
     | '/pricing'
     | '/products'
     | '/safety'
     | '/support'
     | '/waitlist'
+    | '/.well-known/oauth-protected-resource'
     | '/legal/$doc'
   fileRoutesById: FileRoutesById
 }
@@ -139,11 +164,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoverageRoute: typeof CoverageRoute
   FeaturesRoute: typeof FeaturesRoute
+  McpRoute: typeof McpRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
   SafetyRoute: typeof SafetyRoute
   SupportRoute: typeof SupportRoute
   WaitlistRoute: typeof WaitlistRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   LegalDocRoute: typeof LegalDocRoute
 }
 
@@ -168,6 +195,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -205,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/$doc': {
       id: '/legal/$doc'
       path: '/legal/$doc'
@@ -219,11 +260,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoverageRoute: CoverageRoute,
   FeaturesRoute: FeaturesRoute,
+  McpRoute: McpRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
   SafetyRoute: SafetyRoute,
   SupportRoute: SupportRoute,
   WaitlistRoute: WaitlistRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   LegalDocRoute: LegalDocRoute,
 }
 export const routeTree = rootRouteImport
