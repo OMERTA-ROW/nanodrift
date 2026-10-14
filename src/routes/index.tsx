@@ -4,7 +4,8 @@ import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
 import { Section, seo } from "@/components/Section";
 import { ProductCard } from "@/components/ProductCard";
 import { PlanCard } from "@/components/PlanCard";
-import { products, plans } from "@/lib/catalog";
+import { kits, products, plans } from "@/lib/catalog";
+import { KitCard } from "@/components/KitCard";
 import { EngineMap } from "@/components/EngineMap";
 import { LayeredTeardown } from "@/components/LayeredTeardown";
 
@@ -47,6 +48,12 @@ function Home() {
         </div>
       </section>
 
+      <Section eyebrow="Get NanoDrift" title="Pick your kit." intro="One-time hardware price. Add the Standard subscription for $99/yr.">
+        <div className="grid gap-6 md:grid-cols-3">
+          {kits.map((k, i) => <KitCard key={k.id} kit={k} featured={i === 2} />)}
+        </div>
+      </Section>
+
       <Section eyebrow="Capabilities" title="One plug. Every system.">
         <div className="grid gap-10 lg:grid-cols-2">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -78,11 +85,11 @@ function Home() {
         </div>
       </Section>
 
-      <Section eyebrow="Plans" title="Yearly. Your license. Your machine.">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {plans.map((p, i) => <PlanCard key={p.id} plan={p} featured={i === 1} />)}
+      <Section eyebrow="Subscription" title="One simple yearly plan.">
+        <div className="max-w-sm">
+          {plans.map((p) => <PlanCard key={p.id} plan={p} featured />)}
         </div>
-        <div className="mt-10 flex flex-wrap gap-3"><Link to="/pricing" className="btn-outline-neon">Compare plans</Link><Link to="/auth" search={{ mode: "signup" }} className="btn-neon">Create your account</Link></div>
+        <div className="mt-10 flex flex-wrap gap-3"><Link to="/pricing" className="btn-outline-neon">See pricing</Link><Link to="/auth" search={{ mode: "signup" }} className="btn-neon">Create your account</Link></div>
       </Section>
     </>
   );

@@ -32,7 +32,7 @@
       {
         "name": "get_pricing",
         "title": "Get pricing",
-        "description": "List NanoDrift subscription plans with yearly prices and which ones require a signed agreement.",
+        "description": "List NanoDrift hardware kits with prices and the Standard yearly subscription.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

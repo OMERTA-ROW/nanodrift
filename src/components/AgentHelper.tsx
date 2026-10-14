@@ -6,7 +6,7 @@ const tips: [string, string, "/products" | "/pricing" | "/auth" | "/pre-diagnose
   // [path prefix, tip, link to, link label]
   ["/pre-diagnose", "Enter a code like P0420 or describe what you feel. I'll light up where I'd look first.", "/products", "Find my adapter"],
   ["/products", "Cars and light trucks 1996+ take OBD-II. Powerstroke, Cummins or Duramax? Grab the J1939.", "/pricing", "See plans"],
-  ["/pricing", "Core covers diagnostics and me. Power and regen plans need a signed agreement first.", "/auth", "Create account"],
+  ["/pricing", "Pick a kit, then Standard at $99/yr covers diagnostics, the engine map and me.", "/auth", "Create account"],
   ["/coverage", "Not sure about your ride? Run a free preview.", "/pre-diagnose", "Pre-Diagnose"],
   ["/connect", "Paste the URL into your AI assistant and ask it about NanoDrift.", "/pre-diagnose", "Try Pre-Diagnose"],
   ["/garage", "Add each vehicle so I can check coverage before your device arrives.", "/pre-diagnose", "Pre-Diagnose"],

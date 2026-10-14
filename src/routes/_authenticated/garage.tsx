@@ -90,7 +90,7 @@ function Garage() {
           <div className="holo-panel p-6 lg:col-span-2">
             <h2 className="eyebrow">Signed agreements</h2>
             {data.agreements.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">No signed agreements yet. Max Power, Premium / Fleet and AI Force Regen need one before activation.</p>
+              <p className="mt-3 text-sm text-muted-foreground">No signed agreements yet.</p>
             ) : (
               <ul className="mt-3 space-y-2">{data.agreements.map((a) => <li key={a.id} className="rounded-md border p-3 text-sm"><span className="font-bold">{a.title}</span> · signed {new Date(a.signed_at).toLocaleDateString()}</li>)}</ul>
             )}

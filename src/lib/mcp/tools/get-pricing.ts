@@ -1,16 +1,17 @@
 import { defineTool } from "@lovable.dev/mcp-js";
-import { formatPrice, plans } from "@/lib/catalog";
-import { AGREEMENT_NOTE, EMISSIONS_NOTE } from "@/lib/nanodrift-data";
+import { formatKitPrice, formatPrice, kits, plans } from "@/lib/catalog";
+import { EMISSIONS_NOTE } from "@/lib/nanodrift-data";
 
 export default defineTool({
   name: "get_pricing",
   title: "Get pricing",
-  description: "List NanoDrift subscription plans with yearly prices and which ones require a signed agreement.",
+  description: "List NanoDrift hardware kits with prices and the Standard yearly subscription.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: () => {
-    const list = plans.map((p) => ({ id: p.id, name: p.name, price: formatPrice(p.pricePerYear), pricePerYearUsd: p.pricePerYear, summary: p.blurb, features: [...p.features], signedAgreementRequired: p.agreement }));
-    const text = list.map((p) => `• ${p.name}: ${p.price} — ${p.summary}${p.signedAgreementRequired ? " (signed agreement required)" : ""}`).join("\n");
-    return { content: [{ type: "text", text: `${text}\n${AGREEMENT_NOTE}\n${EMISSIONS_NOTE}` }], structuredContent: { plans: list, agreementNote: AGREEMENT_NOTE } };
+    const kitList = kits.map((k) => ({ id: k.id, name: k.name, price: formatKitPrice(k.price), priceUsd: k.price, summary: k.blurb, includes: [...k.includes] }));
+    const list = plans.map((p) => ({ id: p.id, name: p.name, price: formatPrice(p.pricePerYear), pricePerYearUsd: p.pricePerYear, summary: p.blurb, features: [...p.features] }));
+    const text = [...kitList.map((k) => `• ${k.name}: ${k.price} — ${k.includes.join(", ")}`), ...list.map((p) => `• ${p.name} subscription: ${p.price} — ${p.features.join(", ")}`)].join("\n");
+    return { content: [{ type: "text", text: `${text}\n${EMISSIONS_NOTE}` }], structuredContent: { kits: kitList, plans: list } };
   },
 });

@@ -26,7 +26,7 @@ export const safetyRules: [string, string][] = [
 ];
 
 export const EMISSIONS_NOTE = "NanoDrift does not support removing or defeating emissions systems; all tunes are emissions-compliant.";
-export const AGREEMENT_NOTE = "Max Power Unlock, Premium / Fleet and AI Force Regen / Derate Fix require a signed agreement before activation.";
+export const AGREEMENT_NOTE = "Some advanced features unlocked later inside the app require a signed agreement before activation.";
 export const DEVICE_NOTE = "Live readings and full diagnostics require the NanoDrift device, which ships soon.";
 
 export const coveragePhases = [
