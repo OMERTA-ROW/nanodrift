@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { AgentHelmet } from "@/components/brand/Agent";
 
-const tips: [string, string, string, string][] = [
+const tips: [string, string, "/products" | "/pricing" | "/auth" | "/pre-diagnose", string][] = [
   // [path prefix, tip, link to, link label]
   ["/pre-diagnose", "Enter a code like P0420 or describe what you feel. I'll light up where I'd look first.", "/products", "Find my adapter"],
   ["/products", "Cars and light trucks 1996+ take OBD-II. Powerstroke, Cummins or Duramax? Grab the J1939.", "/pricing", "See plans"],
