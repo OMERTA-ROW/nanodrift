@@ -4,6 +4,7 @@ import { plans, products } from "@/lib/catalog";
 const price = (id: string) => plans.find((p) => p.id === id)?.pricePerYear;
 
 describe("pricing", () => {
+  it("Core is $60/yr", () => expect(price("core")).toBe(60));
   it("Max Power is $500/yr", () => expect(price("max-power")).toBe(500));
   it("Premium / Fleet is $1,000/yr", () => expect(price("fleet")).toBe(1000));
   it("AI Force Regen is $2,000/yr", () => expect(price("force-regen")).toBe(2000));

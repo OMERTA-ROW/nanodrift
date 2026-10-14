@@ -59,7 +59,7 @@ export const plans: Plan[] = [
   {
     id: "core",
     name: "Core",
-    pricePerYear: null,
+    pricePerYear: 60,
     blurb: "The foundation every NanoDrift runs on.",
     features: ["Full diagnostics", "Live engine map", "Vehicle health score", "Maintenance alerts", "AI agent"],
     agreement: false,
