@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { PlanCard } from "@/components/PlanCard";
 import { products, plans } from "@/lib/catalog";
 import { EngineMap } from "@/components/EngineMap";
+import { LayeredTeardown } from "@/components/LayeredTeardown";
 
 export const Route = createFileRoute("/")({
   head: () => seo("NanoDrift — Turn any vehicle into a self-tuning machine", "AI-powered universal vehicle diagnostics and tuning. Install once — every new chip or mod auto-syncs. No shop, no laptop, no tuner knowledge."),
@@ -59,6 +60,16 @@ function Home() {
           <EngineMap />
         </div>
         <div className="mt-10"><Link to="/pre-diagnose" className="btn-neon">Preview your vehicle free</Link></div>
+      </Section>
+
+      <Section eyebrow="Signature feature" title={<>Layered <span className="text-holo">Teardown</span></>} intro="Peel your own vehicle apart layer by layer — body, chassis, drivetrain, wiring, fluids — with live internals and an agent that explains every part.">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <LayeredTeardown compact />
+          <div>
+            <p className="text-muted-foreground">The deep-dive mode of your Garage, alongside the everyday see-through diagnostic map. Rolling out first on launch diesel trucks.</p>
+            <Link to="/features" className="btn-outline-neon mt-6 inline-block">Explore Layered Teardown</Link>
+          </div>
+        </div>
       </Section>
 
       <Section eyebrow="The lineup" title="Adapters for everything that moves." intro="USB-C to your phone or laptop. EVs supported through software.">
