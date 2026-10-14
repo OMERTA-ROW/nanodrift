@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Section, seo } from "@/components/Section";
 import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
-import { plans, products } from "@/lib/catalog";
+import { kits, plans, products } from "@/lib/catalog";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/waitlist")({
@@ -20,7 +20,7 @@ function Waitlist() {
   const [done, setDone] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const options = [...products.map((p) => p.name), ...plans.map((p) => p.name)];
+  const options = [...kits.map((k) => k.name), ...products.map((p) => p.name), ...plans.map((p) => p.name)];
 
   return (
     <Section>
