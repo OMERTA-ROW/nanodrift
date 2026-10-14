@@ -1,24 +1,77 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Logo } from "@/components/brand/Logo";
+import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
+import { Section, seo } from "@/components/Section";
+import { ProductCard } from "@/components/ProductCard";
+import { PlanCard } from "@/components/PlanCard";
+import { products, plans } from "@/lib/catalog";
+import { EngineMap } from "@/components/EngineMap";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => seo("NanoDrift — Turn any vehicle into a self-tuning machine", "AI-powered universal vehicle diagnostics and tuning. Install once — every new chip or mod auto-syncs. No shop, no laptop, no tuner knowledge."),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const highlights = [
+  ["Live engine map", "Motor + transmission with live pressures and temps. Failing parts light up."],
+  ["3D hologram view", "Rotate your vehicle and click to reveal ECUs and wiring."],
+  ["Auto-sync mods", "Install once. Every new chip or mod syncs automatically."],
+  ["Safety governor", "Power boost that locks out at even 1 mph."],
+  ["Ghost Security", "Encrypted, tamper-resistant, with Vanishing Mode."],
+  ["Truck regen", "DEF diagnostics, derate management, safe-time regen."],
+];
+
+function Home() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <section className="holo-grid holo-scan border-b">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 md:py-24 lg:grid-cols-2">
+          <div>
+            <Logo />
+            <div className="eyebrow mt-8">Bridging the unbridgeable.</div>
+            <h1 className="mt-4 text-4xl font-black leading-tight md:text-6xl">
+              NanoDrift turns any vehicle into a <span className="text-holo">self-tuning machine.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-muted-foreground">Install once — every new chip or mod auto-syncs. No shop, no laptop, no tuner knowledge.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/waitlist" className="btn-neon">Get NanoDrift</Link>
+              <Link to="/features" className="btn-outline-neon">Explore features</Link>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-3xl" />
+            <AgentHelmet className="animate-float relative mx-auto h-72 w-72 md:h-96 md:w-96" />
+            <AgentBubble className="relative mx-auto mt-4 max-w-sm">Plug me in. I'll scan every module, map your engine live, and keep your tune in sync.</AgentBubble>
+          </div>
+        </div>
+      </section>
+
+      <Section eyebrow="Capabilities" title="One plug. Every system.">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {highlights.map(([t, d]) => (
+              <div key={t} className="holo-panel p-5">
+                <h3 className="text-sm font-bold text-primary-glow">{t}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{d}</p>
+              </div>
+            ))}
+          </div>
+          <EngineMap />
+        </div>
+      </Section>
+
+      <Section eyebrow="The lineup" title="Adapters for everything that moves." intro="USB-C to your phone or laptop. EVs supported through software.">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+          {products.map((p) => <ProductCard key={p.id} product={p} />)}
+        </div>
+      </Section>
+
+      <Section eyebrow="Plans" title="Yearly. Your license. Your machine.">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {plans.map((p, i) => <PlanCard key={p.id} plan={p} featured={i === 1} />)}
+        </div>
+        <div className="mt-10"><Link to="/pricing" className="btn-outline-neon">Compare plans</Link></div>
+      </Section>
+    </>
   );
 }
