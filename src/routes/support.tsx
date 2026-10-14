@@ -3,6 +3,7 @@ import { PageHero, Section, seo } from "@/components/Section";
 import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
 
 export const Route = createFileRoute("/support")({
+  staticData: { sitemap: true },
   head: () => seo("Support — NanoDrift", "Help center, tutorials, ask the AI agent, or talk to a human."),
   component: Support,
 });

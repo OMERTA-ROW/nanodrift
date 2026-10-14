@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, Section, seo } from "@/components/Section";
 
 export const Route = createFileRoute("/coverage")({
+  staticData: { sitemap: true },
   head: () => seo("Vehicle coverage — NanoDrift", "Launching with Ford, Chevy/GM, Dodge/RAM and Toyota, then Honda, Nissan, Jeep, then BMW, Mercedes, boats and EVs. Model years 1996+."),
   component: Coverage,
 });

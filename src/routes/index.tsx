@@ -10,6 +10,7 @@ import { EngineMap } from "@/components/EngineMap";
 import { LayeredTeardown } from "@/components/LayeredTeardown";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => seo("NanoDrift — Turn any vehicle into a self-tuning machine", "AI-powered universal vehicle diagnostics and tuning. Install once — every new chip or mod auto-syncs. No shop, no laptop, no tuner knowledge."),
   component: Home,
 });

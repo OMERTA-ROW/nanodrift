@@ -3,6 +3,7 @@ import { PageHero, Section, seo } from "@/components/Section";
 import { AgentBubble } from "@/components/brand/Agent";
 
 export const Route = createFileRoute("/safety")({
+  staticData: { sitemap: true },
   head: () => seo("Safety — NanoDrift", "No flashing while moving, battery voltage checks, engine-state rules, interrupt rollback and confirmation gates."),
   component: Safety,
 });

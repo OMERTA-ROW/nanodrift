@@ -3,6 +3,7 @@ import { PageHero, Section, seo } from "@/components/Section";
 import { legalDocs } from "@/lib/legal";
 
 export const Route = createFileRoute("/legal/$doc")({
+  staticData: { sitemap: true },
   loader: ({ params }) => {
     const doc = legalDocs.find((d) => d.slug === params.doc);
     if (!doc) throw notFound();

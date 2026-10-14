@@ -5,6 +5,7 @@ import { AgentBubble } from "@/components/brand/Agent";
 import { products } from "@/lib/catalog";
 
 export const Route = createFileRoute("/products")({
+  staticData: { sitemap: true },
   head: () => seo("Shop adapters — NanoDrift", "NanoDrift OBD-II, J1939 Heavy-Duty and Marine adapters. Aviation adapter in development."),
   component: Products,
 });
