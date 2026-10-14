@@ -14,7 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agreements: {
+        Row: {
+          id: string
+          plan_id: string
+          signed_at: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          plan_id: string
+          signed_at?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          plan_id?: string
+          signed_at?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          plan_id: string
+          renews_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          plan_id?: string
+          renews_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          plan_id?: string
+          renews_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          created_at: string
+          id: string
+          make: string
+          model: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          make: string
+          model: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          make?: string
+          model?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          interest: string | null
+          name: string
+          source: string
+          vehicle: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          interest?: string | null
+          name: string
+          source?: string
+          vehicle?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          interest?: string | null
+          name?: string
+          source?: string
+          vehicle?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
