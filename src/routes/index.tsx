@@ -31,8 +31,7 @@ function Home() {
       <section className="holo-grid holo-scan border-b">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 md:py-16 lg:grid-cols-[1fr_1.5fr]">
           <div>
-            <Logo />
-            <div className="eyebrow mt-8">Bridging the unbridgeable.</div>
+            <div className="eyebrow">Bridging the unbridgeable.</div>
             <h1 className="mt-4 text-4xl font-black leading-tight md:text-5xl xl:text-6xl">
               NanoDrift turns any vehicle into a <span className="text-holo">self-tuning machine.</span>
             </h1>
@@ -41,8 +40,7 @@ function Home() {
               <Link to="/products" className="btn-neon">Get NanoDrift</Link>
               <Link to="/pre-diagnose" className="btn-outline-neon">Free Pre-Diagnose</Link>
             </div>
-            <div className="mt-8 flex items-start gap-3">
-              <AgentHelmet className="h-14 w-14 shrink-0" />
+            <div className="mt-8">
               <AgentBubble className="max-w-sm">Spin the truck, zoom in, then tap it. I'll show you what's happening under the paint.</AgentBubble>
             </div>
           </div>
