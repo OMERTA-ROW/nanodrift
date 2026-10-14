@@ -10,7 +10,7 @@ const spots = [
 
 export function HoloVehicle() {
   const [rot, setRot] = useState(-20);
-  const [active, setActive] = useState(spots[0]);
+  const [active, setActive] = useState(spots[0]!);
   return (
     <div className="holo-panel holo-scan holo-grid p-6">
       <div className="relative mx-auto aspect-[2/1] max-w-xl" style={{ perspective: "800px" }}>

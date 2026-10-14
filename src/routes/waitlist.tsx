@@ -6,7 +6,7 @@ import { plans, products } from "@/lib/catalog";
 
 export const Route = createFileRoute("/waitlist")({
   validateSearch: (s: Record<string, unknown>): { interest?: string } => ({
-    interest: typeof s.interest === "string" ? s.interest : undefined,
+    interest: typeof s["interest"] === "string" ? s["interest"] : undefined,
   }),
   head: () => seo("Join the waitlist — NanoDrift", "Reserve your NanoDrift adapter and plan before launch."),
   component: Waitlist,
@@ -36,7 +36,7 @@ function Waitlist() {
               onSubmit={(e) => {
                 e.preventDefault();
                 const name = String(new FormData(e.currentTarget).get("name") || "driver").trim();
-                setDone(name.split(" ")[0]);
+                setDone(name.split(" ")[0] ?? name);
               }}
               className="relative z-[2] space-y-4"
             >

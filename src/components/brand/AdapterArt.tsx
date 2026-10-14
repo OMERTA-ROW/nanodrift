@@ -1,7 +1,8 @@
+import type React from "react";
 import type { AdapterKind } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
-const connectors: Record<AdapterKind, JSX.Element> = {
+const connectors: Record<AdapterKind, React.ReactElement> = {
   obd: (
     <g>
       <path d="M70 150 L230 150 L218 196 L82 196 Z" strokeWidth="2.5" />
