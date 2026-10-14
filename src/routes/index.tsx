@@ -34,8 +34,8 @@ function Home() {
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">Install once — every new chip or mod auto-syncs. No shop, no laptop, no tuner knowledge.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/waitlist" className="btn-neon">Get NanoDrift</Link>
-              <Link to="/features" className="btn-outline-neon">Explore features</Link>
+              <Link to="/pre-diagnose" className="btn-neon">Free Pre-Diagnose</Link>
+              <Link to="/products" className="btn-outline-neon">Shop adapters</Link>
             </div>
           </div>
           <div className="relative">
@@ -58,6 +58,7 @@ function Home() {
           </div>
           <EngineMap />
         </div>
+        <div className="mt-10"><Link to="/pre-diagnose" className="btn-neon">Preview your vehicle free</Link></div>
       </Section>
 
       <Section eyebrow="The lineup" title="Adapters for everything that moves." intro="USB-C to your phone or laptop. EVs supported through software.">
@@ -70,7 +71,7 @@ function Home() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((p, i) => <PlanCard key={p.id} plan={p} featured={i === 1} />)}
         </div>
-        <div className="mt-10"><Link to="/pricing" className="btn-outline-neon">Compare plans</Link></div>
+        <div className="mt-10 flex flex-wrap gap-3"><Link to="/pricing" className="btn-outline-neon">Compare plans</Link><Link to="/auth" search={{ mode: "signup" }} className="btn-neon">Create your account</Link></div>
       </Section>
     </>
   );
