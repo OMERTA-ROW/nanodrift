@@ -4,7 +4,7 @@ import { Section, seo } from "@/components/Section";
 import { AgentBubble, AgentHelmet } from "@/components/brand/Agent";
 import { supabase } from "@/integrations/supabase/client";
 
-type Search = { mode?: "login" | "signup"; redirect?: string };
+type Search = { mode?: "login" | "signup" | undefined; redirect?: string | undefined };
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): Search => ({

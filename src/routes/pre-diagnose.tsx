@@ -5,7 +5,7 @@ import { AgentBubble } from "@/components/brand/Agent";
 import { EngineMap } from "@/components/EngineMap";
 import { areaLabel, checkCoverage, DEVICE_NOTE, explainCode, matchSymptoms, type EngineArea } from "@/lib/nanodrift-data";
 
-type Search = { make?: string; model?: string; year?: number };
+type Search = { make?: string | undefined; model?: string | undefined; year?: number | undefined };
 
 export const Route = createFileRoute("/pre-diagnose")({
   validateSearch: (s: Record<string, unknown>): Search => ({
