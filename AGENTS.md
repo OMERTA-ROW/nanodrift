@@ -17,3 +17,4 @@
 - 3D scenes live in src/components/hologram and load via React.lazy inside <ClientOnly> so three.js never runs during SSR; models are bundled under public/models (CC0 only).
 - The hero 3D semi (src/components/hologram/SemiTruck3D.tsx) is procedural so every internal part is a separately selectable mesh; part info lives in its PARTS map.
 - Engine layouts in the 3D teardown come from src/lib/engine-families.ts (generic representative families, always labelled as not an exact vehicle match) so new families need no scene changes.
+- Oil sludge/lubrication risk is an inference in src/lib/oil-risk.ts from stored readings, service history, driving pattern and DTCs only; UI must label it an estimate, never a detection, and label animations as simulations.

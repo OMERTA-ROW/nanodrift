@@ -676,7 +676,7 @@ export default function SemiTruck3D() {
       </Canvas>
 
       {part && (
-        <div className="holo-panel absolute right-3 top-14 z-10 max-h-[70%] w-72 max-w-[85%] overflow-y-auto p-4 text-sm">
+        <div className="holo-panel absolute right-3 top-14 z-10 max-h-[55%] w-72 max-w-[85%] overflow-y-auto p-4 text-sm">
           <div className="eyebrow">{LAYERS[part.layer]}</div>
           <div className="mt-1 font-bold text-primary-glow">{part.name.replace("(x6)", `(x${fam.cylinders})`)}</div>
           {part.layer === 2 && <div className="text-[10px] uppercase tracking-widest text-gold">{fam.label} · representative</div>}
