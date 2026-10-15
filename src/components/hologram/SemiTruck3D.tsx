@@ -1,6 +1,6 @@
 import { modelPartToComponent } from "@/lib/parts-catalog";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor, SoftShadows } from "@react-three/drei";
+import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor } from "@react-three/drei";
 import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
@@ -591,7 +591,6 @@ export default function SemiTruck3D() {
       >
         <PerformanceMonitor onDecline={() => quality === "auto" && setAutoLow(true)} />
         <AdaptiveDpr pixelated={false} />
-        {hi && <SoftShadows size={18} samples={10} focus={0.6} />}
         <color attach="background" args={["#050307"]} />
         <fog attach="fog" args={["#050307", 16, 40]} />
         <hemisphereLight args={["#d9d0ff", "#0a0610", 0.35]} />
