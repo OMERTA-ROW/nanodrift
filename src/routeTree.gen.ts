@@ -28,6 +28,7 @@ import { Route as WaitlistRouteImport } from './routes/waitlist'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
 import { Route as LegalDocRouteImport } from './routes/legal.$doc'
+import { Route as AuthenticatedAgreementTierRouteImport } from './routes/_authenticated/agreement.$tier'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -124,6 +125,12 @@ const LegalDocRoute = LegalDocRouteImport.update({
   path: '/legal/$doc',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAgreementTierRoute =
+  AuthenticatedAgreementTierRouteImport.update({
+    id: '/agreement/$tier',
+    path: '/agreement/$tier',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
+  '/agreement/$tier': typeof AuthenticatedAgreementTierRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
+  '/agreement/$tier': typeof AuthenticatedAgreementTierRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/garage': typeof AuthenticatedGarageRoute
   '/legal/$doc': typeof LegalDocRoute
+  '/_authenticated/agreement/$tier': typeof AuthenticatedAgreementTierRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/garage'
     | '/legal/$doc'
+    | '/agreement/$tier'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/garage'
     | '/legal/$doc'
+    | '/agreement/$tier'
   id:
     | '__root__'
     | '/'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/garage'
     | '/legal/$doc'
+    | '/_authenticated/agreement/$tier'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -407,15 +420,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalDocRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/agreement/$tier': {
+      id: '/_authenticated/agreement/$tier'
+      path: '/agreement/$tier'
+      fullPath: '/agreement/$tier'
+      preLoaderRoute: typeof AuthenticatedAgreementTierRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
+  AuthenticatedAgreementTierRoute: typeof AuthenticatedAgreementTierRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGarageRoute: AuthenticatedGarageRoute,
+  AuthenticatedAgreementTierRoute: AuthenticatedAgreementTierRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

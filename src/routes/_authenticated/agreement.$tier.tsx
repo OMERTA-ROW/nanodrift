@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/agreement/$tier")({
     if (!tier) throw notFound();
     return { tier };
   },
-  head: () => ({ ...seo("Sign agreement — NanoDrift", "Review and sign your NanoDrift mini-license."), meta: [{ title: "Sign agreement — NanoDrift" }, { name: "robots", content: "noindex" }] }),
+  head: () => seo("Sign agreement — NanoDrift", "Review and sign your NanoDrift mini-license."),
   component: SignAgreement,
 });
 
