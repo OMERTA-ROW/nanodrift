@@ -153,7 +153,7 @@ export function familyFor(make: string, model: string): EngineFamily {
   return "gas";
 }
 
-export function findParts(opts: { component?: ComponentId; family?: EngineFamily }): Part[] {
+export function findParts(opts: { component?: ComponentId | undefined; family?: EngineFamily | undefined }): Part[] {
   return parts.filter((p) => (!opts.component || p.component === opts.component) && (!opts.family || p.family === opts.family));
 }
 

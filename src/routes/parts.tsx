@@ -3,7 +3,7 @@ import { ExternalLink, Wrench } from "lucide-react";
 import { PageHero, Section, seo } from "@/components/Section";
 import { components, familyFor, familyLabel, findParts, type ComponentId, type EngineFamily } from "@/lib/parts-catalog";
 
-type Search = { component?: ComponentId; family?: EngineFamily; vehicle?: string };
+type Search = { component?: ComponentId | undefined; family?: EngineFamily | undefined; vehicle?: string | undefined };
 
 export const Route = createFileRoute("/parts")({
   staticData: { sitemap: true },
