@@ -153,23 +153,24 @@ function Truck({ holo = false, onToggle }: { holo?: boolean; onToggle?: () => vo
   useEffect(() => {
     model.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (!m.isMesh) return;
+      if (!m.isMesh || !m.userData["paint"]) return;
       m.material = holo ? ghost : (m.userData["paint"] as THREE.Material);
       (m.userData["edge"] as THREE.Object3D).visible = holo;
     });
   }, [holo, model, ghost]);
   void solid; void edges;
 
-  useFrame(({ clock }, d) => {
+  useFrame(({ clock }) => {
     if (!group.current) return;
     group.current.position.y = Math.sin(clock.elapsedTime * 1.2) * 0.02;
     ghost.opacity = 0.07 + Math.sin(clock.elapsedTime * 2) * 0.03;
-    void d;
   });
+
+  const click = (e: ThreeEvent<MouseEvent>) => { if (e.delta > 6) return; e.stopPropagation(); onToggle?.(); };
 
   return (
     <group ref={group}>
-      <primitive object={model} />
+      <primitive object={model} onClick={click} onPointerOver={() => (document.body.style.cursor = "pointer")} onPointerOut={() => (document.body.style.cursor = "")} />
       <Internals holo={holo} box={box} />
       <ScanPlane holo={holo} box={box} />
     </group>
