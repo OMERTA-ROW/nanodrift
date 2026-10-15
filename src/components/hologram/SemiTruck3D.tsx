@@ -1,6 +1,7 @@
 import { modelPartToComponent } from "@/lib/parts-catalog";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls } from "@react-three/drei";
+import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor, SoftShadows } from "@react-three/drei";
+import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 
@@ -207,7 +208,13 @@ function Wheel({ x, z, dual }: { x: number; z: number; dual?: boolean }) {
       {offs.map((o) => (
         <group key={o} position={[x, 0.52, z + o]} rotation={[Math.PI / 2, 0, 0]}>
           <P id="wheels" color={RUBBER} metal={0} rough={0.9}><cylinderGeometry args={[0.52, 0.52, 0.28, 32]} /></P>
-          <P id="wheels" color={CHROME} metal={1} rough={0.15} position={[0, s * 0.02, 0]}><cylinderGeometry args={[0.3, 0.3, 0.29, 24]} /></P>
+          <P id="wheels" color={RUBBER} metal={0} rough={0.9} position={[0, 0.14, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.45, 0.07, 12, 40]} /></P>
+          <P id="wheels" color={RUBBER} metal={0} rough={0.9} position={[0, -0.14, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.45, 0.07, 12, 40]} /></P>
+          <P id="wheels" color={CHROME} metal={1} rough={0.15} position={[0, s * 0.02, 0]}><cylinderGeometry args={[0.3, 0.3, 0.29, 32]} /></P>
+          <P id="wheels" color={STEEL} metal={0.8} rough={0.4} position={[0, s * 0.155, 0]}><cylinderGeometry args={[0.12, 0.14, 0.04, 20]} /></P>
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => (
+            <P key={k} id="wheels" color={CHROME} metal={1} rough={0.2} position={[Math.cos((k * Math.PI) / 5) * 0.2, s * 0.155, Math.sin((k * Math.PI) / 5) * 0.2]}><cylinderGeometry args={[0.022, 0.022, 0.05, 6]} /></P>
+          ))}
         </group>
       ))}
     </>
@@ -569,32 +576,54 @@ export default function SemiTruck3D() {
   const [motor, setMotor] = useState(0);
   const part = sel ? PARTS[sel] : null;
   const narrow = typeof window !== "undefined" && window.innerWidth < 640;
+  const [quality, setQuality] = useState<"auto" | "high" | "low">("auto");
+  const [autoLow, setAutoLow] = useState(narrow);
+  const hi = quality === "high" || (quality === "auto" && !autoLow);
 
   return (
     <div className="relative h-full w-full">
-      <Canvas shadows dpr={[1, 2]} camera={{ position: narrow ? [13, 7, 13] : [9.5, 5, 9.5], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }} onPointerMissed={() => setSel(null)}>
+      <Canvas
+        shadows={hi ? "soft" : true}
+        dpr={hi ? [1, 2] : [1, 1.25]}
+        camera={{ position: narrow ? [13, 7, 13] : [9.5, 5, 9.5], fov: 38 }}
+        gl={{ antialias: !hi, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05, powerPreference: "high-performance" }}
+        onPointerMissed={() => setSel(null)}
+      >
+        <PerformanceMonitor onDecline={() => quality === "auto" && setAutoLow(true)} />
+        <AdaptiveDpr pixelated={false} />
+        {hi && <SoftShadows size={18} samples={10} focus={0.6} />}
         <color attach="background" args={["#050307"]} />
         <fog attach="fog" args={["#050307", 16, 40]} />
-        <ambientLight intensity={0.3} />
-        <spotLight position={[8, 12, 6]} angle={0.45} penumbra={0.8} intensity={260} color="#fff4e0" castShadow shadow-mapSize={[1024, 1024]} />
+        <hemisphereLight args={["#d9d0ff", "#0a0610", 0.35]} />
+        {/* Studio key, rim and fill lights */}
+        <spotLight position={[8, 12, 6]} angle={0.45} penumbra={0.8} intensity={260} color="#fff4e0" castShadow shadow-mapSize={hi ? [2048, 2048] : [1024, 1024]} shadow-bias={-0.0004} shadow-normalBias={0.02} />
+        <spotLight position={[-9, 7, -6]} angle={0.5} penumbra={1} intensity={120} color="#c9b8ff" />
         <pointLight position={[-6, 3, -4]} intensity={50} color={PURPLE} />
         <pointLight position={[5, 2, -5]} intensity={25} color={GOLD} />
-        <Environment resolution={256}>
-          <Lightformer intensity={3} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[14, 5, 1]} />
+        <Environment resolution={hi ? 512 : 128}>
+          <Lightformer form="rect" intensity={3} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[14, 5, 1]} />
           <Lightformer intensity={2.5} color={PURPLE} position={[-8, 2, 0]} rotation-y={Math.PI / 2} scale={[16, 1.5, 1]} />
           <Lightformer intensity={1.8} color={GOLD} position={[8, 1.5, -2]} rotation-y={-Math.PI / 2} scale={[14, 0.8, 1]} />
           <Lightformer intensity={1.5} position={[0, 2, 8]} scale={[10, 1, 1]} />
+          <Lightformer form="ring" intensity={2} position={[0, 3, -9]} scale={4} />
         </Environment>
         <SceneCtx.Provider value={{ sel, setSel, hover, setHover, peel, explode, motor }}>
           <Semi />
         </SceneCtx.Provider>
         <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
           <planeGeometry args={[60, 60]} />
-          <MeshReflectorMaterial blur={[300, 80]} resolution={512} mixBlur={1} mixStrength={14} roughness={0.9} depthScale={1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#08060b" metalness={0.6} mirror={0.5} />
+          <MeshReflectorMaterial blur={[300, 80]} resolution={hi ? 1024 : 256} mixBlur={1} mixStrength={14} roughness={0.9} depthScale={1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#08060b" metalness={0.6} mirror={0.5} />
         </mesh>
         <gridHelper args={[24, 48, PURPLE_DEEP, "#1d1428"]} position={[0, 0.002, 0]} />
         <GlowHalo />
-        <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={16} blur={2.4} far={4} />
+        <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={16} blur={2.4} far={4} resolution={hi ? 1024 : 256} />
+        {hi && (
+          <EffectComposer multisampling={0}>
+            <N8AO aoRadius={0.6} intensity={2.2} distanceFalloff={0.6} halfRes />
+            <SMAA />
+            <Vignette offset={0.3} darkness={0.55} />
+          </EffectComposer>
+        )}
         <OrbitControls makeDefault enablePan enableDamping dampingFactor={0.08} minDistance={4} maxDistance={26} maxPolarAngle={Math.PI / 2.05} autoRotate={!sel} autoRotateSpeed={0.5} target={[0, 1.6, 0]} />
       </Canvas>
 
@@ -629,6 +658,15 @@ export default function SemiTruck3D() {
           <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
             Motor breakdown
             <input type="range" min={0} max={1} step={0.01} value={motor} onChange={(e) => { setMotor(+e.target.value); if (peel < 2) setPeel(2); }} className="w-28 accent-gold" aria-label="Break down the motor" />
+          </label>
+          <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            Quality
+            <select value={quality} onChange={(e) => setQuality(e.target.value as "auto" | "high" | "low")} aria-label="Graphics quality"
+              className="rounded border border-primary/50 bg-background px-1.5 py-0.5 text-[11px] text-foreground">
+              <option value="auto">Auto{quality === "auto" ? (hi ? " (high)" : " (low)") : ""}</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
           </label>
           <button type="button" onClick={() => { setPeel(2); setExplode(0); setMotor(motor > 0.5 ? 0 : 1); }}
             className="rounded-full border border-gold/60 px-2.5 py-1 text-[11px] text-gold hover:bg-gold/10">
