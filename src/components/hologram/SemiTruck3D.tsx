@@ -146,7 +146,7 @@ function surfaceFor(color: string, metal: number, rough: number): Partial<THREE.
 }
 
 /** One clickable piece of a named part. */
-function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", metal = 0.6, rough = 0.4, emissive = "#000000", glow = 0, children }: PProps) {
+function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", metal = 0.6, rough = 0.4, emissive = "#000000", glow = 0, geometry, children }: PProps) {
   const { sel, setSel, hover, setHover } = useContext(SceneCtx);
   const { ghost } = useContext(LayerCtx);
   const isSel = sel === id;
@@ -156,6 +156,7 @@ function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", 
     <mesh
       position={position}
       rotation={rotation}
+      geometry={geometry}
       castShadow={!ghost}
       onClick={click}
       onPointerOver={(e) => { if (ghost) return; e.stopPropagation(); setHover(id); document.body.style.cursor = "pointer"; }}
@@ -240,8 +241,8 @@ function Wheel({ x, z, dual }: { x: number; z: number; dual?: boolean }) {
     <>
       {offs.map((o) => (
         <group key={o} position={[x, 0.52, z + o]} rotation={[Math.PI / 2, 0, 0]}>
-          <P id="wheels" color={RUBBER} metal={0} rough={0.9}><primitive object={TG.TYRE} attach="geometry" /></P>
-          <P id="wheels" color={CHROME} metal={1} rough={0.12} rotation={[s < 0 ? Math.PI : 0, 0, 0]}><primitive object={TG.RIM} attach="geometry" /></P>
+          <P id="wheels" color={RUBBER} metal={0} rough={0.9} geometry={TG.TYRE} />
+          <P id="wheels" color={CHROME} metal={1} rough={0.12} rotation={[s < 0 ? Math.PI : 0, 0, 0]} geometry={TG.RIM} />
           <P id="wheels" color={STEEL} metal={0.8} rough={0.4} position={[0, s * 0.14, 0]}><cylinderGeometry args={[0.1, 0.13, 0.05, 24]} /></P>
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => (
             <P key={k} id="wheels" color={CHROME} metal={1} rough={0.2} position={[Math.cos((k * Math.PI) / 5) * 0.2, s * 0.155, Math.sin((k * Math.PI) / 5) * 0.2]}><cylinderGeometry args={[0.022, 0.022, 0.05, 6]} /></P>
@@ -498,20 +499,20 @@ function Semi() {
       {/* 0 — Body shell */}
       <Layer i={0}>
         {/* Long-nose hood with crowned top, swept fenders and cowl */}
-        <P id="hood" color={PAINT} metal={0.7} rough={0.18}><primitive object={TG.HOOD} attach="geometry" /></P>
+        <P id="hood" color={PAINT} metal={0.7} rough={0.18} geometry={TG.HOOD} />
         {[1.03, -1.03].map((z) => (
-          <P key={z} id="hood" position={[0, 0, z]} color={PAINT} metal={0.7} rough={0.18}><primitive object={FENDER} attach="geometry" /></P>
+          <P key={z} id="hood" position={[0, 0, z]} color={PAINT} metal={0.7} rough={0.18} geometry={FENDER} />
         ))}
         {[1.03, -1.03].map((z) => (
           <P key={`st${z}`} id="hood" position={[2.55, 0.98, z]} color="#2a2530" metal={0.8} rough={0.35}><boxGeometry args={[0.7, 0.05, 0.4]} /></P>
         ))}
         {/* Grille: chrome surround, dark mesh, horizontal bars */}
-        <P id="grille" position={[4.36, 1.62, 0]} rotation={[0, Math.PI / 2, 0]} color={CHROME} metal={1} rough={0.1}><primitive object={TG.GRILLE_FRAME} attach="geometry" /></P>
+        <P id="grille" position={[4.36, 1.62, 0]} rotation={[0, Math.PI / 2, 0]} color={CHROME} metal={1} rough={0.1} geometry={TG.GRILLE_FRAME} />
         <P id="grille" position={[4.35, 1.62, 0]} color="#08070b" metal={0.6} rough={0.6}><boxGeometry args={[0.02, 0.9, 0.95]} /></P>
         {Array.from({ length: 9 }, (_, i) => (
           <P key={i} id="grille" position={[4.38, 1.24 + i * 0.095, 0]} color={CHROME} metal={1} rough={0.12}><boxGeometry args={[0.025, 0.025, 0.94]} /></P>
         ))}
-        <P id="grille" color={CHROME} metal={1} rough={0.1}><primitive object={TG.BUMPER} attach="geometry" /></P>
+        <P id="grille" color={CHROME} metal={1} rough={0.1} geometry={TG.BUMPER} />
         {/* Headlights on fender fronts: chrome bezel + lens */}
         {[1.03, -1.03].map((z) => (
           <group key={`hl${z}`} position={[4.26, 1.38, z]} rotation={[0, 0, Math.PI / 2]}>
@@ -524,11 +525,11 @@ function Semi() {
           <P key={`ac${z}`} id="hood" position={[2.35, 1.95, z]} color={CHROME} metal={1} rough={0.12}><cylinderGeometry args={[0.2, 0.2, 0.7, 32]} /></P>
         ))}
         {/* Cab, raked windshield, side glass, visor, marker lights, mirrors */}
-        <P id="cab" color={PAINT} metal={0.7} rough={0.18}><primitive object={TG.CAB} attach="geometry" /></P>
+        <P id="cab" color={PAINT} metal={0.7} rough={0.18} geometry={TG.CAB} />
         <P id="cab" position={[2.15, 2.56, 0]} rotation={[0, 0, TG.WINDSHIELD_ANGLE]} color="#0a0d14" metal={0.2} rough={0.02}><boxGeometry args={[0.03, 0.8, 1.9]} /></P>
         <P id="cab" position={[2.26, 2.04, 0]} color={CHROME} metal={1} rough={0.12}><boxGeometry args={[0.02, 0.04, 1.96]} /></P>
         {[1.15, -1.15].map((z) => (
-          <P key={`sw${z}`} id="cab" position={[0, z < 0 ? 5.18 : 0, z]} rotation={[z < 0 ? Math.PI : 0, 0, 0]} color="#0a0d14" metal={0.2} rough={0.02}><primitive object={TG.SIDE_WINDOW} attach="geometry" /></P>
+          <P key={`sw${z}`} id="cab" position={[0, z < 0 ? 5.18 : 0, z]} rotation={[z < 0 ? Math.PI : 0, 0, 0]} color="#0a0d14" metal={0.2} rough={0.02} geometry={TG.SIDE_WINDOW} />
         ))}
         <P id="cab" position={[2.05, 3.1, 0]} rotation={[0, 0, -0.25]} color={PAINT} metal={0.7} rough={0.2}><boxGeometry args={[0.35, 0.04, 2.1]} /></P>
         {[-0.6, -0.3, 0, 0.3, 0.6].map((z) => (
@@ -546,7 +547,7 @@ function Semi() {
           <P key={`dh${z}`} id="cab" position={[1.2, 2.15, z * 1.01]} color={CHROME} metal={1} rough={0.15}><boxGeometry args={[0.16, 0.03, 0.03]} /></P>
         ))}
         {/* Sleeper with aero roof fairing */}
-        <P id="sleeper" color={PAINT} metal={0.7} rough={0.2}><primitive object={TG.SLEEPER} attach="geometry" /></P>
+        <P id="sleeper" color={PAINT} metal={0.7} rough={0.2} geometry={TG.SLEEPER} />
         {[1.17, -1.17].map((z) => (
           <P key={`sl${z}`} id="sleeper" position={[-0.05, 2.0, z]} color="#2a2530" metal={0.6} rough={0.4}><boxGeometry args={[0.5, 0.35, 0.02]} /></P>
         ))}
