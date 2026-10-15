@@ -1,3 +1,4 @@
+import { modelPartToComponent } from "@/lib/parts-catalog";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls } from "@react-three/drei";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
@@ -577,6 +578,9 @@ export default function SemiTruck3D() {
           <p className="mt-1 text-xs text-muted-foreground">{part.what}</p>
           <div className="mt-2 text-xs"><span className={part.status === "ok" ? "text-primary-glow" : "text-gold"}>● {statusLabel[part.status]}</span></div>
           <p className="mt-1 text-xs text-muted-foreground">{part.note}</p>
+          {sel && modelPartToComponent[sel] && (
+            <a href={`/parts?component=${modelPartToComponent[sel]}`} className="mt-3 inline-block rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90">Find this part →</a>
+          )}
           <p className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">Sample status · live data needs the device</p>
         </div>
       )}
