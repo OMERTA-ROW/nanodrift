@@ -1,6 +1,6 @@
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 // Brand palette for the 3D scene (WebGL can't read CSS tokens).
@@ -8,8 +8,8 @@ const PURPLE = "#a855f7";
 const PURPLE_DEEP = "#6d28d9";
 const GOLD = "#d4a72c";
 const CYAN_COOLANT = "#c084fc";
-const MODEL_URL = "/models/truck.glb";
-const TARGET_LENGTH = 4.6;
+const MODEL_URL = "/models/pickup.glb";
+const TARGET_LENGTH = 5.4;
 
 function flowTexture(color: string) {
   const c = document.createElement("canvas");
