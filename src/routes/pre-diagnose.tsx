@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { components, componentsForArea, familyFor, findParts } from "@/lib/parts-catalog";
+import { Link, createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHero, Section, seo } from "@/components/Section";
 import { AgentBubble } from "@/components/brand/Agent";
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/pre-diagnose")({
 const field = "w-full rounded-md border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary focus:shadow-[var(--glow-sm)]";
 const makes = ["Ford", "Chevrolet", "GMC", "Dodge", "RAM", "Toyota", "Honda", "Nissan", "Jeep", "BMW", "Mercedes-Benz", "Tesla", "Other"];
 
-interface Result { vehicle: string; coverage: string; covered: boolean; lines: string[]; causes: string[]; area: EngineArea | null }
+interface Result { make: string; model: string; vehicle: string; coverage: string; covered: boolean; lines: string[]; causes: string[]; area: EngineArea | null }
 
 function PreDiagnose() {
   const s = Route.useSearch();
@@ -53,7 +54,7 @@ function PreDiagnose() {
                 else lines.push("I couldn't match those symptoms to a common pattern. The live scan will pinpoint it.");
               }
               if (!code && !symptoms) lines.push("Add a trouble code or describe a symptom for a fuller preview.");
-              setResult({ vehicle: `${year} ${make} ${model}`, coverage: cov.message, covered: cov.supported, lines, causes, area });
+              setResult({ make, model, vehicle: `${year} ${make} ${model}`, coverage: cov.message, covered: cov.supported, lines, causes, area });
             }}
           >
             <div className="relative z-[2] grid gap-4 sm:grid-cols-3">
@@ -87,6 +88,16 @@ function PreDiagnose() {
                   )}
                 </div>
                 <EngineMap sample highlight={result.area ?? "ignition"} />
+                {result.area && (
+                  <div className="holo-panel p-5">
+                    <div className="eyebrow">Find this part</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {componentsForArea(result.area).filter((c) => findParts({ component: c, family: familyFor(result.make, result.model) }).length > 0).map((c) => (
+                        <Link key={c} to="/parts" search={{ component: c, family: familyFor(result.make, result.model), vehicle: result.vehicle }} className="btn-outline-neon !px-3 !py-1.5 text-xs">{components[c].name} →</Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <AgentBubble>This is a preview based on common patterns, not a reading from your vehicle. {DEVICE_NOTE}</AgentBubble>
               </>
             )}

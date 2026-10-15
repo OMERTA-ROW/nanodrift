@@ -1,3 +1,4 @@
+import { familyFor } from "@/lib/parts-catalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -59,6 +60,7 @@ function Garage() {
                   </div>
                   <div className="flex gap-2">
                     <Link to="/pre-diagnose" search={{ make: v.make, model: v.model, year: v.year }} className="btn-outline-neon !px-3 !py-1.5 text-xs">Pre-Diagnose</Link>
+                    <Link to="/parts" search={{ family: familyFor(v.make, v.model), vehicle: `${v.year} ${v.make} ${v.model}` }} className="btn-outline-neon !px-3 !py-1.5 text-xs">Find parts</Link>
                     <button onClick={async () => { await supabase.from("vehicles").delete().eq("id", v.id); refresh(); }} className="btn-outline-neon !px-3 !py-1.5 text-xs">Remove</button>
                   </div>
                 </li>
