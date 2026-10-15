@@ -104,7 +104,7 @@ function Internals({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
   );
 }
 
-function Truck({ holo = false }: { holo?: boolean }) {
+function Truck({ holo = false, onToggle }: { holo?: boolean; onToggle?: () => void }) {
   const { scene } = useGLTF(MODEL_URL);
   const group = useRef<THREE.Group>(null);
   const { model, box, solid, ghost, edges } = useMemo(() => {
@@ -121,22 +121,31 @@ function Truck({ holo = false }: { holo?: boolean }) {
     const solid: THREE.Material[] = [];
     const ghost = new THREE.MeshPhysicalMaterial({ color: PURPLE_DEEP, transparent: true, opacity: 0.08, roughness: 0.1, metalness: 0.2, depthWrite: false, side: THREE.DoubleSide });
     const edges = new THREE.Group();
+    const mats: Record<string, THREE.Material> = {
+      paint: new THREE.MeshPhysicalMaterial({ color: "#0a080e", metalness: 0.7, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2, sheen: 0.5, sheenColor: new THREE.Color(PURPLE_DEEP) }),
+      trim: new THREE.MeshPhysicalMaterial({ color: "#121014", metalness: 0.3, roughness: 0.55 }),
+      chrome: new THREE.MeshPhysicalMaterial({ color: "#d9cfa8", metalness: 1, roughness: 0.12, envMapIntensity: 2.2 }),
+      steel: new THREE.MeshPhysicalMaterial({ color: "#3a3540", metalness: 0.95, roughness: 0.3 }),
+      rubber: new THREE.MeshPhysicalMaterial({ color: "#0c0c0d", metalness: 0, roughness: 0.85 }),
+      glass: new THREE.MeshPhysicalMaterial({ color: "#05040a", metalness: 0.2, roughness: 0.02, clearcoat: 1, envMapIntensity: 2.5, transparent: true, opacity: 0.85 }),
+      lamp: new THREE.MeshPhysicalMaterial({ color: "#fff6e6", emissive: "#fff1d6", emissiveIntensity: 1.6, roughness: 0.1, toneMapped: false }),
+      tail: new THREE.MeshPhysicalMaterial({ color: "#3a0612", emissive: "#a01535", emissiveIntensity: 1.2, roughness: 0.15 }),
+    };
     model.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
       m.castShadow = true;
-      const src = m.material as THREE.MeshStandardMaterial;
-      const isWheel = /wheel/i.test(m.name) || /wheel/i.test(m.parent?.name ?? "");
-      void src;
-      const paint = isWheel
-        ? new THREE.MeshPhysicalMaterial({ color: "#151217", metalness: 0.9, roughness: 0.35, emissive: GOLD, emissiveIntensity: 0.06 })
-        : new THREE.MeshPhysicalMaterial({ color: "#0b0910", metalness: 0.85, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.8, sheen: 0.4, sheenColor: new THREE.Color(PURPLE_DEEP) });
+      // Hide plates and anything badge-like so no real marks show.
+      if (/registration|badge|emblem|logo/i.test(m.name + (m.parent?.name ?? ""))) { m.visible = false; return; }
+      const srcName = ((m.material as THREE.Material).name || "").toLowerCase();
+      const key = srcName === "black" ? "trim" : srcName === "white" || srcName === "red" ? "paint" : srcName in mats ? srcName : "paint";
+      const paint = mats[key]!;
       m.userData["paint"] = paint;
       solid.push(paint);
       const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.9, toneMapped: false }));
+      e.visible = false;
       m.add(e);
       m.userData["edge"] = e;
-      edges.add();
     });
     return { model, box, solid, ghost, edges };
   }, [scene]);
