@@ -24,9 +24,29 @@ export const PARTS: Record<string, PartInfo> = {
   fifth: { name: "Fifth wheel", layer: 1, what: "Coupling plate that locks onto the trailer kingpin.", status: "ok", note: "Lock sensor reports engaged." },
   wheels: { name: "Wheels & tires", layer: 1, what: "Steer tires up front, dual tires on both drive axles.", status: "watch", note: "Sample: rear-left outer tire 8 psi below its pair." },
   steer: { name: "Steer axle", layer: 1, what: "Front axle beam with steering knuckles.", status: "ok", note: "Alignment within spec." },
-  engine: { name: "Diesel engine block", layer: 2, what: "Inline-six heavy-duty diesel making the truck's power.", status: "ok", note: "Oil pressure and temps nominal." },
-  injectors: { name: "Fuel injectors (x6)", layer: 2, what: "Spray precisely timed fuel into each cylinder.", status: "watch", note: "Sample: cylinder 4 balance rate slightly high — keep an eye on it." },
+  block: { name: "Cylinder block & cylinders", layer: 2, what: "Cast-iron heart of the inline-six — holds the six cylinder bores the pistons ride in.", status: "ok", note: "Compression balance even across all six cylinders." },
+  pistons: { name: "Pistons & connecting rods", layer: 2, what: "Pistons take the force of combustion; rods pass it down to the crankshaft.", status: "ok", note: "No blow-by trend detected." },
+  crankshaft: { name: "Crankshaft", layer: 2, what: "Turns the pistons' up-and-down motion into rotation.", status: "ok", note: "Crank speed steady, no misfire pattern." },
+  camshaft: { name: "Camshaft", layer: 2, what: "Spinning shaft whose lobes open the valves in time with the pistons.", status: "ok", note: "Cam/crank timing in sync." },
+  valvetrain: { name: "Valvetrain (valves, lifters, rockers)", layer: 2, what: "Lifters and rocker arms push the intake and exhaust valves open and closed.", status: "watch", note: "Sample: slight valve-lash noise on cylinder 2 — check at next service." },
+  head: { name: "Cylinder head", layer: 2, what: "Caps the cylinders and houses the valves, ports and injectors.", status: "ok", note: "Head temperature normal." },
+  headgasket: { name: "Head gasket", layer: 2, what: "Seals the head to the block so compression, oil and coolant stay apart.", status: "ok", note: "No coolant loss or combustion gas in coolant." },
+  intake: { name: "Intake manifold", layer: 2, what: "Spreads boosted air evenly to each cylinder.", status: "ok", note: "Intake air temp normal." },
+  exhaust: { name: "Exhaust manifold", layer: 2, what: "Collects hot exhaust from each cylinder and feeds the turbo.", status: "ok", note: "Exhaust temps even across cylinders." },
   turbo: { name: "Turbocharger", layer: 2, what: "Uses exhaust flow to pack more air into the engine.", status: "ok", note: "Boost pressure normal." },
+  intercooler: { name: "Intercooler", layer: 2, what: "Cools the hot boosted air before it enters the engine.", status: "ok", note: "Charge-air temp drop normal." },
+  injectors: { name: "Fuel injectors (x6)", layer: 2, what: "Spray precisely timed fuel into each cylinder.", status: "watch", note: "Sample: cylinder 4 balance rate slightly high — keep an eye on it." },
+  hpfp: { name: "High-pressure fuel pump", layer: 2, what: "Pressurises diesel for the common-rail injectors.", status: "ok", note: "Rail pressure tracking target." },
+  glowplugs: { name: "Glow plugs (x6)", layer: 2, what: "Heat each cylinder for easy cold starts.", status: "fault", note: "Sample: glow plug 5 open circuit — harder cold starts." },
+  oilpan: { name: "Oil pan", layer: 2, what: "Reservoir under the engine holding the oil supply.", status: "ok", note: "Oil level within range." },
+  oilpump: { name: "Oil pump", layer: 2, what: "Pushes oil through the engine to every bearing.", status: "ok", note: "Pump output normal." },
+  oilfilter: { name: "Oil filter", layer: 2, what: "Catches dirt and metal before oil reaches the bearings.", status: "watch", note: "Sample: filter restriction rising — due at next oil change." },
+  waterpump: { name: "Water pump", layer: 2, what: "Belt-driven pump that circulates coolant.", status: "ok", note: "Coolant flow normal." },
+  thermostat: { name: "Thermostat", layer: 2, what: "Valve that holds the engine at operating temperature.", status: "ok", note: "Opens at spec temperature." },
+  coolantpass: { name: "Coolant passages", layer: 2, what: "Channels cast through the block and head that carry coolant around the cylinders.", status: "ok", note: "No hot spots detected." },
+  belts: { name: "Belts & pulleys", layer: 2, what: "Serpentine belt and pulleys that drive the fan, water pump and alternator.", status: "ok", note: "Belt tension normal." },
+  alternator: { name: "Alternator", layer: 2, what: "Charges the batteries and powers electronics while running.", status: "ok", note: "Charging at 14.1 V." },
+  starter: { name: "Starter motor", layer: 2, what: "Electric motor that cranks the engine to start it.", status: "ok", note: "Cranking speed normal." },
   radiator: { name: "Radiator", layer: 2, what: "Sheds engine heat from the coolant into the air.", status: "ok", note: "Coolant delta-T normal." },
   fan: { name: "Cooling fan", layer: 2, what: "Clutched fan that pulls air through the radiator.", status: "ok", note: "Fan clutch engaging on demand." },
   transmission: { name: "Transmission", layer: 2, what: "18-speed gearbox turning engine power into road speed.", status: "ok", note: "Shift timing and fluid temp normal." },
@@ -34,7 +54,16 @@ export const PARTS: Record<string, PartInfo> = {
   drivetrain: { name: "Tandem drive axles", layer: 2, what: "Two differentials and axles that drive the rear wheels.", status: "ok", note: "Inter-axle differential normal." },
   ecm: { name: "Engine ECM", layer: 3, what: "Engine computer that runs fuel, timing and boost.", status: "ok", note: "No active trouble codes." },
   harness: { name: "Main wiring harness", layer: 3, what: "Routes power and data from the cab to every module and light.", status: "ok", note: "No opens or shorts found." },
-  sensors: { name: "Engine & chassis sensors", layer: 3, what: "Temperature, pressure, speed and exhaust sensors.", status: "fault", note: "Sample: NOx sensor reading erratic — check connector." },
+  sensors: { name: "Chassis sensors", layer: 3, what: "Wheel-speed, pressure and aftertreatment sensors around the chassis.", status: "fault", note: "Sample: NOx sensor reading erratic — check connector." },
+  o2sensor: { name: "Exhaust / O2 sensor", layer: 3, what: "Reads oxygen left in the exhaust to fine-tune fueling.", status: "ok", note: "Switching normally." },
+  maf: { name: "MAF sensor", layer: 3, what: "Measures how much air enters the engine.", status: "ok", note: "Airflow matches boost." },
+  cts: { name: "Coolant temp sensor", layer: 3, what: "Tells the ECM how hot the engine is running.", status: "ok", note: "Reading 192°F (sample)." },
+  ops: { name: "Oil pressure sensor", layer: 3, what: "Watches oil pressure so the engine is never starved.", status: "ok", note: "45 psi at idle (sample)." },
+  ckp: { name: "Crankshaft position sensor", layer: 3, what: "Tracks crank rotation for injection timing.", status: "ok", note: "Signal clean." },
+  cmp: { name: "Camshaft position sensor", layer: 3, what: "Tells the ECM which stroke each cylinder is on.", status: "ok", note: "In sync with crank." },
+  fusecab: { name: "Cab fuse panel", layer: 3, what: "Dash-side fuses and relays for lights, radio, HVAC and cab accessories.", status: "fault", note: "Sample: 15A radio/accessory fuse blown — shown in red." },
+  fusepdm: { name: "Engine-bay power distribution box", layer: 3, what: "High-current fuses and relays for the ECM, fan clutch, starter and glow plugs.", status: "ok", note: "All circuits powered." },
+  fusechassis: { name: "Chassis fuse & relay box", layer: 3, what: "Maxi-fuses next to the batteries feeding trailer, lights and the main harness.", status: "ok", note: "Voltage drop normal." },
   batteries: { name: "Battery box", layer: 3, what: "Four 12V batteries powering starting and electronics.", status: "ok", note: "12.7 V resting — healthy." },
   radio: { name: "Radio head unit", layer: 3, what: "Dash radio and audio amplifier.", status: "ok", note: "Powered, signal normal." },
   speakers: { name: "Speakers", layer: 3, what: "Door and sleeper speakers.", status: "watch", note: "Sample: right sleeper speaker impedance high — possible blown cone." },
@@ -47,7 +76,7 @@ export const PARTS: Record<string, PartInfo> = {
   air: { name: "Air brake lines", layer: 4, what: "Compressed air lines feeding the brakes.", status: "ok", note: "System pressure 120 psi." },
 };
 
-type Ctx = { sel: string | null; setSel: (s: string | null) => void; hover: string | null; setHover: (s: string | null) => void; peel: number; explode: number };
+type Ctx = { sel: string | null; setSel: (s: string | null) => void; hover: string | null; setHover: (s: string | null) => void; peel: number; explode: number; motor: number };
 const SceneCtx = createContext<Ctx>(null!);
 const LayerCtx = createContext<{ ghost: boolean }>({ ghost: false });
 
@@ -187,6 +216,155 @@ function Driveshaft() {
   );
 }
 
+/** Moves its children outward when the motor is broken down. */
+function Ex({ dir, children }: { dir: V3; children: ReactNode }) {
+  const { motor } = useContext(SceneCtx);
+  const ref = useRef<THREE.Group>(null);
+  useFrame((_, d) => {
+    const g = ref.current; if (!g) return;
+    const k = 1 - Math.exp(-6 * Math.min(d, 0.05));
+    g.position.x += (dir[0] * motor - g.position.x) * k;
+    g.position.y += (dir[1] * motor - g.position.y) * k;
+    g.position.z += (dir[2] * motor - g.position.z) * k;
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
+const CYL_X = [2.6, 2.8, 3.0, 3.2, 3.4, 3.6];
+const STEEL = "#3a3540";
+
+function EngineDetail() {
+  return (
+    <>
+      {/* Block + cylinders slide out sideways to expose the rotating assembly */}
+      <Ex dir={[0, 0, -1.3]}>
+        <P id="block" position={[3.1, 1.45, 0]} color="#141016" metal={0.9} rough={0.35} emissive={PURPLE_DEEP} glow={0.2}><boxGeometry args={[1.3, 0.5, 0.6]} /></P>
+        {CYL_X.map((x) => (
+          <P key={x} id="block" position={[x, 1.71, 0]} color="#0c0810" emissive={PURPLE} glow={0.5}><cylinderGeometry args={[0.085, 0.085, 0.03, 20]} /></P>
+        ))}
+        <Tube id="coolantpass" color={COOLANT} r={0.02} flow={1.5} pts={[[2.45, 1.6, 0.31], [3.1, 1.62, 0.31], [3.75, 1.6, 0.31]]} />
+        <Tube id="coolantpass" color={COOLANT} r={0.02} flow={1.5} pts={[[2.45, 1.4, 0.31], [3.1, 1.38, 0.31], [3.75, 1.4, 0.31]]} />
+      </Ex>
+      <Ex dir={[0, 0.35, 0]}>
+        {CYL_X.map((x) => (
+          <P key={x} id="pistons" position={[x, 1.6, 0]} color="#8a8090" metal={1} rough={0.2} emissive={GOLD} glow={0.15}><cylinderGeometry args={[0.08, 0.08, 0.1, 20]} /></P>
+        ))}
+        {CYL_X.map((x) => (
+          <P key={x} id="pistons" position={[x, 1.42, 0]} color={STEEL} metal={1} rough={0.3}><boxGeometry args={[0.03, 0.28, 0.05]} /></P>
+        ))}
+      </Ex>
+      <Ex dir={[0, -0.4, 0]}>
+        <P id="crankshaft" position={[3.1, 1.26, 0]} rotation={[0, 0, Math.PI / 2]} color="#5a5260" metal={1} rough={0.2} emissive={GOLD} glow={0.2}><cylinderGeometry args={[0.04, 0.04, 1.4, 12]} /></P>
+        {CYL_X.map((x, i) => (
+          <P key={x} id="crankshaft" position={[x, 1.26 + (i % 2 ? 0.05 : -0.05), 0]} color="#5a5260" metal={1}><boxGeometry args={[0.04, 0.16, 0.12]} /></P>
+        ))}
+      </Ex>
+      <Ex dir={[0, -0.95, 0]}>
+        <P id="oilpan" position={[3.1, 1.1, 0]} color="#1c1622" metal={0.8} rough={0.4} emissive={PURPLE_DEEP} glow={0.25}><boxGeometry args={[1.2, 0.14, 0.5]} /></P>
+      </Ex>
+      <Ex dir={[0, -0.65, 0.35]}>
+        <P id="oilpump" position={[3.6, 1.18, 0.15]} color="#2a1e10" metal={0.9} emissive={GOLD} glow={0.35}><cylinderGeometry args={[0.07, 0.07, 0.1, 16]} /></P>
+      </Ex>
+      <Ex dir={[0, -0.2, 0.9]}>
+        <P id="oilfilter" position={[2.9, 1.35, 0.38]} rotation={[Math.PI / 2, 0, 0]} color="#e0b84a" metal={0.4} rough={0.5} emissive={GOLD} glow={0.25}><cylinderGeometry args={[0.07, 0.07, 0.2, 20]} /></P>
+      </Ex>
+      {/* Top end lifts upward in stages */}
+      <Ex dir={[0, 0.6, 0]}>
+        <P id="headgasket" position={[3.1, 1.715, 0]} color="#8a7a50" metal={0.9} rough={0.3} emissive={GOLD} glow={0.3}><boxGeometry args={[1.3, 0.015, 0.6]} /></P>
+      </Ex>
+      <Ex dir={[0, 0.9, 0]}>
+        <P id="head" position={[3.1, 1.81, 0]} color="#1e1824" metal={0.9} rough={0.3} emissive={PURPLE_DEEP} glow={0.2}><boxGeometry args={[1.28, 0.17, 0.56]} /></P>
+      </Ex>
+      <Ex dir={[0, 1.15, 0]}>
+        {CYL_X.map((x) => (
+          <P key={x} id="glowplugs" position={[x + 0.05, 1.93, 0.18]} color="#3a1a05" emissive="#ff7a1a" glow={0.8}><cylinderGeometry args={[0.012, 0.012, 0.09, 8]} /></P>
+        ))}
+        <Injectors />
+      </Ex>
+      <Ex dir={[0, 1.35, 0]}>
+        <P id="camshaft" position={[3.1, 1.97, -0.12]} rotation={[0, 0, Math.PI / 2]} color="#5a5260" metal={1} rough={0.2} emissive={GOLD} glow={0.25}><cylinderGeometry args={[0.03, 0.03, 1.3, 12]} /></P>
+      </Ex>
+      <Ex dir={[0, 1.6, 0]}>
+        {CYL_X.map((x) => (
+          <group key={x}>
+            <P id="valvetrain" position={[x - 0.04, 2.05, -0.12]} color={STEEL} metal={1}><boxGeometry args={[0.03, 0.03, 0.24]} /></P>
+            <P id="valvetrain" position={[x - 0.04, 2.0, -0.03]} color="#8a8090" metal={1}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /></P>
+            <P id="valvetrain" position={[x - 0.04, 1.99, -0.22]} color="#8a8090" metal={1}><cylinderGeometry args={[0.02, 0.02, 0.06, 10]} /></P>
+          </group>
+        ))}
+      </Ex>
+      {/* Breathing side (+z) and exhaust side (-z) */}
+      <Ex dir={[0, 0.7, 1.0]}>
+        <P id="intake" position={[3.1, 1.85, 0.36]} color="#1a1220" metal={0.7} emissive={PURPLE} glow={0.35}><boxGeometry args={[1.2, 0.12, 0.12]} /></P>
+        <Tube id="intake" color={PURPLE} r={0.05} pts={[[2.5, 1.85, 0.38], [2.3, 1.95, 0.55], [2.3, 2.0, 0.75]]} />
+      </Ex>
+      <Ex dir={[0, 0.4, -1.6]}>
+        <P id="exhaust" position={[3.1, 1.72, -0.36]} color="#4a2a10" metal={1} rough={0.35} emissive="#ff7a1a" glow={0.35}><boxGeometry args={[1.2, 0.1, 0.1]} /></P>
+      </Ex>
+      <Ex dir={[0, 0.6, -2.0]}>
+        <P id="turbo" position={[2.7, 1.8, -0.55]} color="#3a2d16" metal={1} rough={0.25} emissive={GOLD} glow={0.35}><sphereGeometry args={[0.16, 24, 24]} /></P>
+        <P id="turbo" position={[2.7, 1.8, -0.72]} rotation={[Math.PI / 2, 0, 0]} color="#3a2d16" metal={1}><cylinderGeometry args={[0.1, 0.1, 0.1, 20]} /></P>
+      </Ex>
+      <Ex dir={[0.6, 0, 0]}>
+        <P id="intercooler" position={[4.24, 1.55, 0]} color="#0d0812" emissive={PURPLE} glow={0.6}><boxGeometry args={[0.05, 0.55, 1.0]} /></P>
+      </Ex>
+      <Ex dir={[0, 0, 1.3]}>
+        <P id="hpfp" position={[2.55, 1.42, 0.4]} color="#2a1e10" metal={0.9} emissive={GOLD} glow={0.5}><boxGeometry args={[0.2, 0.16, 0.14]} /></P>
+      </Ex>
+      {/* Front of engine: cooling + accessory drive */}
+      <Ex dir={[0.75, 0, 0]}>
+        <P id="waterpump" position={[3.82, 1.5, 0.1]} rotation={[0, 0, Math.PI / 2]} color="#1a1220" metal={0.8} emissive={COOLANT} glow={0.5}><cylinderGeometry args={[0.09, 0.09, 0.08, 20]} /></P>
+      </Ex>
+      <Ex dir={[0.8, 0.45, 0]}>
+        <P id="thermostat" position={[3.72, 1.86, 0.18]} color="#1a1220" metal={0.8} emissive={COOLANT} glow={0.6}><cylinderGeometry args={[0.05, 0.05, 0.07, 16]} /></P>
+      </Ex>
+      <Ex dir={[1.25, 0, 0]}>
+        {([[1.3, 0, 0.11], [1.5, 0.1, 0.07], [1.72, 0.35, 0.07]] as V3[]).map(([y, z, r]) => (
+          <P key={y} id="belts" position={[3.88, y, z]} rotation={[0, 0, Math.PI / 2]} color={STEEL} metal={1} emissive={GOLD} glow={0.2}><cylinderGeometry args={[r, r, 0.04, 20]} /></P>
+        ))}
+        <Tube id="belts" color={GOLD} r={0.012} pts={[[3.9, 1.19, 0], [3.9, 1.45, 0.17], [3.9, 1.72, 0.42], [3.9, 1.79, 0.33], [3.9, 1.5, 0.03], [3.9, 1.3, -0.11]]} />
+      </Ex>
+      <Ex dir={[0.6, 0.3, 1.1]}>
+        <P id="alternator" position={[3.6, 1.72, 0.42]} rotation={[0, 0, Math.PI / 2]} color="#2a2530" metal={0.9} emissive={GOLD} glow={0.3}><cylinderGeometry args={[0.1, 0.1, 0.18, 20]} /></P>
+      </Ex>
+      <Ex dir={[0, -0.3, -1.8]}>
+        <P id="starter" position={[2.55, 1.28, -0.38]} rotation={[0, 0, Math.PI / 2]} color="#2a2530" metal={0.9} emissive={PURPLE} glow={0.3}><cylinderGeometry args={[0.07, 0.07, 0.26, 16]} /></P>
+      </Ex>
+    </>
+  );
+}
+
+/** Key engine sensors — ride along with the parts they mount on. */
+function EngineSensors() {
+  const s = (id: string, pos: V3, dir: V3, c = PURPLE) => (
+    <Ex key={id} dir={dir}>
+      <P id={id} position={pos} color="#120b18" emissive={c} glow={1}><sphereGeometry args={[0.035, 14, 14]} /></P>
+    </Ex>
+  );
+  return (
+    <>
+      {s("o2sensor", [2.5, 1.74, -0.46], [0, 0.4, -1.6], "#ff3355")}
+      {s("maf", [2.3, 2.0, 0.72], [0, 0.7, 1.0])}
+      {s("cts", [3.72, 1.93, 0.18], [0.8, 0.45, 0], COOLANT)}
+      {s("ops", [3.3, 1.35, 0.32], [0, 0, -1.3], GOLD)}
+      {s("ckp", [3.78, 1.26, 0.12], [0, -0.4, 0])}
+      {s("cmp", [3.72, 1.97, -0.12], [0, 1.35, 0])}
+    </>
+  );
+}
+
+/** Fuse/relay panel with a row of blade fuses. One sample fuse is blown. */
+function FuseBox({ id, position, rotation = [0, 0, 0] }: { id: string; position: V3; rotation?: V3 }) {
+  return (
+    <group position={position} rotation={rotation}>
+      <P id={id} color="#120b18" metal={0.4} rough={0.5} emissive={PURPLE} glow={0.45}><boxGeometry args={[0.32, 0.2, 0.08]} /></P>
+      {[-0.11, -0.055, 0, 0.055, 0.11].map((x, i) => (
+        <P key={x} id={id} position={[x, 0.02, 0.05]} color="#1a1206" emissive={id === "fusecab" && i === 3 ? "#ff3355" : GOLD} glow={0.9}><boxGeometry args={[0.03, 0.07, 0.02]} /></P>
+      ))}
+    </group>
+  );
+}
+
 function Injectors() {
   const refs = useRef<THREE.Mesh[]>([]);
   return (
@@ -273,10 +451,7 @@ function Semi() {
 
       {/* 2 — Engine + drivetrain */}
       <Layer i={2}>
-        <P id="engine" position={[3.1, 1.5, 0]} color="#141016" metal={0.9} rough={0.35} emissive={PURPLE_DEEP} glow={0.15}><boxGeometry args={[1.3, 0.6, 0.7]} /></P>
-        <P id="engine" position={[3.1, 1.88, 0]} color="#1e1824" metal={0.9} rough={0.3} emissive={GOLD} glow={0.1}><boxGeometry args={[1.25, 0.14, 0.55]} /></P>
-        <Injectors />
-        <P id="turbo" position={[2.8, 1.72, 0.52]} color="#3a2d16" metal={1} rough={0.25} emissive={GOLD} glow={0.3}><sphereGeometry args={[0.18, 24, 24]} /></P>
+        <EngineDetail />
         <P id="radiator" position={[4.15, 1.6, 0]} color="#0d0812" emissive={COOLANT} glow={0.7}><boxGeometry args={[0.1, 0.8, 1.1]} /></P>
         <Fan />
         <P id="transmission" position={[2.05, 1.32, 0]} rotation={[0, 0, Math.PI / 2]} color="#120d18" metal={0.9} rough={0.3} emissive={PURPLE_DEEP} glow={0.35}><cylinderGeometry args={[0.24, 0.17, 0.9, 24]} /></P>
@@ -298,6 +473,14 @@ function Semi() {
         <Tube id="harness" color={PURPLE} r={0.022} flow={2.6} pts={[[2.0, 1.9, -0.6], [1.6, 1.15, -0.55], [-0.5, 1.1, -0.52], [-2.6, 1.1, -0.52], [-4.0, 1.1, -0.52], [-4.0, 1.1, 0.52]]} />
         <Tube id="harness" color={PURPLE} r={0.015} flow={2.6} pts={[[2.9, 1.5, -0.42], [3.4, 1.4, -0.4], [4.2, 1.35, -0.6], [4.32, 1.35, -0.68]]} />
         <Sensors />
+        <FuseBox id="fusecab" position={[2.02, 1.95, -0.62]} rotation={[0, Math.PI / 2, 0]} />
+        <FuseBox id="fusepdm" position={[3.75, 1.75, -0.62]} />
+        <FuseBox id="fusechassis" position={[0.95, 1.2, -0.95]} />
+        <Tube id="harness" color={PURPLE} r={0.016} flow={2.6} pts={[[0.6, 1.1, -0.95], [0.75, 1.15, -0.97], [0.95, 1.2, -0.95]]} />
+        <Tube id="harness" color={PURPLE} r={0.016} flow={2.6} pts={[[0.95, 1.2, -0.92], [1.6, 1.5, -0.7], [2.02, 1.95, -0.62]]} />
+        <Tube id="harness" color={PURPLE} r={0.016} flow={2.6} pts={[[2.02, 1.95, -0.62], [2.8, 1.85, -0.65], [3.75, 1.75, -0.62]]} />
+        <Tube id="harness" color={PURPLE} r={0.012} flow={2.6} pts={[[3.75, 1.75, -0.62], [3.9, 1.55, -0.6], [4.2, 1.35, -0.62]]} />
+        <EngineSensors />
         <P id="radio" position={[2.0, 2.25, 0]} color="#120b18" emissive={GOLD} glow={0.9}><boxGeometry args={[0.1, 0.14, 0.42]} /></P>
         {[1.12, -1.12].map((z) => (
           <group key={z}>
@@ -355,6 +538,7 @@ export default function SemiTruck3D() {
   const [hover, setHover] = useState<string | null>(null);
   const [peel, setPeel] = useState(0);
   const [explode, setExplode] = useState(0);
+  const [motor, setMotor] = useState(0);
   const part = sel ? PARTS[sel] : null;
   const narrow = typeof window !== "undefined" && window.innerWidth < 640;
 
@@ -373,7 +557,7 @@ export default function SemiTruck3D() {
           <Lightformer intensity={1.8} color={GOLD} position={[8, 1.5, -2]} rotation-y={-Math.PI / 2} scale={[14, 0.8, 1]} />
           <Lightformer intensity={1.5} position={[0, 2, 8]} scale={[10, 1, 1]} />
         </Environment>
-        <SceneCtx.Provider value={{ sel, setSel, hover, setHover, peel, explode }}>
+        <SceneCtx.Provider value={{ sel, setSel, hover, setHover, peel, explode, motor }}>
           <Semi />
         </SceneCtx.Provider>
         <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
@@ -406,10 +590,20 @@ export default function SemiTruck3D() {
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          Explode
-          <input type="range" min={0} max={1} step={0.01} value={explode} onChange={(e) => setExplode(+e.target.value)} className="w-40 accent-primary" aria-label="Explode layers" />
-        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            Explode
+            <input type="range" min={0} max={1} step={0.01} value={explode} onChange={(e) => setExplode(+e.target.value)} className="w-28 accent-primary" aria-label="Explode layers" />
+          </label>
+          <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            Motor breakdown
+            <input type="range" min={0} max={1} step={0.01} value={motor} onChange={(e) => { setMotor(+e.target.value); if (peel < 2) setPeel(2); }} className="w-28 accent-gold" aria-label="Break down the motor" />
+          </label>
+          <button type="button" onClick={() => { setPeel(2); setExplode(0); setMotor(motor > 0.5 ? 0 : 1); }}
+            className="rounded-full border border-gold/60 px-2.5 py-1 text-[11px] text-gold hover:bg-gold/10">
+            {motor > 0.5 ? "Reassemble motor" : "Tear down motor"}
+          </button>
+        </div>
       </div>
     </div>
   );
