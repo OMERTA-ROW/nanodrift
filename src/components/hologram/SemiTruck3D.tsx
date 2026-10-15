@@ -583,7 +583,7 @@ export default function SemiTruck3D() {
   return (
     <div className="relative h-full w-full">
       <Canvas
-        shadows={hi ? "soft" : true}
+        shadows
         dpr={hi ? [1, 2] : [1, 1.25]}
         camera={{ position: narrow ? [13, 7, 13] : [9.5, 5, 9.5], fov: 38 }}
         gl={{ antialias: !hi, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.05, powerPreference: "high-performance" }}
