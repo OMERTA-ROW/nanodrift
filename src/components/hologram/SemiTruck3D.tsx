@@ -4,6 +4,9 @@ import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMat
 import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
+import { SAMPLE_LOG, SENSORS, readCodes, readSensors, type SensorKey } from "@/lib/vehicle-health";
+import { explainCode } from "@/lib/nanodrift-data";
+import { OilRiskPanel } from "@/components/OilRiskPanel";
 import { ENGINE_FAMILIES, cylinderLayout, getEngineFamily, type EngineFamilyDef, type EngineFamilyId } from "@/lib/engine-families";
 
 // Brand palette for WebGL (cannot read CSS tokens).
@@ -80,7 +83,33 @@ export const PARTS: Record<string, PartInfo> = {
   air: { name: "Air brake lines", layer: 4, what: "Compressed air lines feeding the brakes.", status: "ok", note: "System pressure 120 psi." },
 };
 
-type Ctx = { sel: string | null; setSel: (s: string | null) => void; hover: string | null; setHover: (s: string | null) => void; peel: number; explode: number; motor: number };
+/** Which supported sensor readings relate to each tappable part (callout links). */
+const PART_SENSORS: Partial<Record<string, SensorKey[]>> = {
+  ops: ["oil_pressure_psi"], oilpan: ["oil_pressure_psi", "oil_temp_f"], oilpump: ["oil_pressure_psi"], oilfilter: ["oil_pressure_psi", "oil_temp_f"], oil: ["oil_temp_f", "oil_pressure_psi"],
+  block: ["oil_pressure_psi", "coolant_temp_f"], crankshaft: ["oil_pressure_psi"], camshaft: ["oil_pressure_psi"], valvetrain: ["oil_pressure_psi"],
+  cts: ["coolant_temp_f"], thermostat: ["coolant_temp_f"], waterpump: ["coolant_pressure_psi", "coolant_temp_f"], coolant: ["coolant_temp_f", "coolant_pressure_psi"], coolantpass: ["coolant_temp_f"], radiator: ["coolant_temp_f"], headgasket: ["coolant_temp_f", "coolant_pressure_psi"],
+  turbo: ["boost_psi"], intercooler: ["boost_psi"], intake: ["boost_psi"], hpfp: ["fuel_pressure_psi"], fuelline: ["fuel_pressure_psi"], injectors: ["fuel_pressure_psi"],
+  alternator: ["battery_v"], batteries: ["battery_v"], starter: ["battery_v"], transmission: ["trans_temp_f"],
+};
+const OIL_PARTS = new Set(["ops", "oilpan", "oilpump", "oilfilter", "oil", "crankshaft", "camshaft", "valvetrain"]);
+
+/** Clearly-labelled simulation of restricted oil flow — illustrative only, not measured. */
+function OilSim() {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => { if (ref.current) ref.current.children.forEach((c, i) => { c.scale.setScalar(0.6 + 0.4 * Math.abs(Math.sin(clock.elapsedTime * 0.6 + i))); }); });
+  return (
+    <group>
+      <Tube id="oilpump" color="#d4a72c" r={0.018} flow={0.35} pts={[[3.6, 1.18, 0.15], [3.6, 1.3, 0.25], [3.1, 1.32, 0.26], [2.6, 1.3, 0.25], [2.6, 1.6, 0.25], [3.1, 1.95, 0.2]]} />
+      <group ref={ref}>
+        {[[2.8, 1.06, 0.1], [3.2, 1.06, -0.12], [3.45, 1.06, 0.05], [3.0, 1.98, 0.15]].map((p, i) => (
+          <mesh key={i} position={p as V3} raycast={() => null}><sphereGeometry args={[0.05, 12, 12]} /><meshStandardMaterial color="#3a2a12" emissive="#d4a72c" emissiveIntensity={0.4} roughness={0.9} /></mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
+type Ctx = { oilSim: boolean; sel: string | null; setSel: (s: string | null) => void; hover: string | null; setHover: (s: string | null) => void; peel: number; explode: number; motor: number };
 const SceneCtx = createContext<Ctx>(null!);
 const LayerCtx = createContext<{ ghost: boolean }>({ ghost: false });
 
@@ -463,6 +492,7 @@ function Sensors() {
 }
 
 function Semi() {
+  const { oilSim } = useContext(SceneCtx);
   return (
     <group position={[-0.2, 0, 0]}>
       {/* 0 — Body shell */}
@@ -502,6 +532,7 @@ function Semi() {
       {/* 2 — Engine + drivetrain */}
       <Layer i={2}>
         <EngineDetail />
+        {oilSim && <OilSim />}
         <P id="radiator" position={[4.15, 1.6, 0]} color="#0d0812" emissive={COOLANT} glow={0.7}><boxGeometry args={[0.1, 0.8, 1.1]} /></P>
         <Fan />
         <P id="transmission" position={[2.05, 1.32, 0]} rotation={[0, 0, Math.PI / 2]} color="#120d18" metal={0.9} rough={0.3} emissive={PURPLE_DEEP} glow={0.35}><cylinderGeometry args={[0.24, 0.17, 0.9, 24]} /></P>
@@ -589,6 +620,7 @@ export default function SemiTruck3D() {
   const [peel, setPeel] = useState(0);
   const [explode, setExplode] = useState(0);
   const [motor, setMotor] = useState(0);
+  const [oilSim, setOilSim] = useState(false);
   const [famId, setFamId] = useState<EngineFamilyId>("bigrig-i6-diesel");
   const fam = getEngineFamily(famId);
   const part = sel ? PARTS[sel] : null;
@@ -623,7 +655,7 @@ export default function SemiTruck3D() {
           <Lightformer intensity={1.5} position={[0, 2, 8]} scale={[10, 1, 1]} />
           <Lightformer form="ring" intensity={2} position={[0, 3, -9]} scale={4} />
         </Environment>
-        <SceneCtx.Provider value={{ sel, setSel, hover, setHover, peel, explode, motor }}>
+        <SceneCtx.Provider value={{ oilSim, sel, setSel, hover, setHover, peel, explode, motor }}>
           <FamilyCtx.Provider value={fam}><Semi /></FamilyCtx.Provider>
         </SceneCtx.Provider>
         <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
@@ -644,13 +676,14 @@ export default function SemiTruck3D() {
       </Canvas>
 
       {part && (
-        <div className="holo-panel absolute right-3 top-14 z-10 w-64 max-w-[80%] p-4 text-sm">
+        <div className="holo-panel absolute right-3 top-14 z-10 max-h-[70%] w-72 max-w-[85%] overflow-y-auto p-4 text-sm">
           <div className="eyebrow">{LAYERS[part.layer]}</div>
           <div className="mt-1 font-bold text-primary-glow">{part.name.replace("(x6)", `(x${fam.cylinders})`)}</div>
           {part.layer === 2 && <div className="text-[10px] uppercase tracking-widest text-gold">{fam.label} · representative</div>}
           <p className="mt-1 text-xs text-muted-foreground">{part.what}</p>
           <div className="mt-2 text-xs"><span className={part.status === "ok" ? "text-primary-glow" : "text-gold"}>● {statusLabel[part.status]}</span></div>
           <p className="mt-1 text-xs text-muted-foreground">{part.note}</p>
+          {sel && <Callout id={sel} oilSim={oilSim} setOilSim={setOilSim} />}
           {sel && modelPartToComponent[sel] && (
             <a href={`/parts?component=${modelPartToComponent[sel]}`} className="mt-3 inline-block rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90">Find this part →</a>
           )}
@@ -658,6 +691,7 @@ export default function SemiTruck3D() {
         </div>
       )}
 
+      {oilSim && <div className="pointer-events-none absolute left-1/2 top-14 z-10 -translate-x-1/2 rounded-full border border-gold bg-background/80 px-3 py-1 text-[10px] uppercase tracking-widest text-gold">Simulation · illustrative oil restriction, not measured</div>}
       <div className="absolute inset-x-3 bottom-3 z-10 flex flex-col gap-2">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Representative model · {fam.label} ({fam.examples}) · not an exact match for any specific vehicle</p>
         <div className="flex flex-wrap gap-1.5">
@@ -699,6 +733,38 @@ export default function SemiTruck3D() {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Linked readings, related trouble codes and (for oil parts) the cautious risk estimate. */
+function Callout({ id, oilSim, setOilSim }: { id: string; oilSim: boolean; setOilSim: (v: boolean) => void }) {
+  const keys = PART_SENSORS[id] ?? [];
+  const readings = readSensors(SAMPLE_LOG.sensor_readings).filter((r) => keys.includes(r.key));
+  const areas = new Set(keys.map((k) => SENSORS[k].area as string));
+  const codes = readCodes(SAMPLE_LOG.trouble_codes).map(explainCode).filter((e) => e.info && areas.has(e.info.area));
+  if (!readings.length && !codes.length && !OIL_PARTS.has(id)) return <p className="mt-2 text-[10px] text-muted-foreground">No supported sensor reading is linked to this part.</p>;
+  return (
+    <div className="mt-3 space-y-2 border-t border-primary/30 pt-2">
+      {readings.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Linked readings · sample, not live</div>
+          <ul className="mt-1 space-y-0.5 text-xs">
+            {readings.map((r) => <li key={r.key} className="flex justify-between gap-2"><span className="text-muted-foreground">{r.label}</span><span className={r.status === "ok" ? "text-primary-glow" : "text-gold"}>{r.value} {r.unit}{r.status !== "ok" ? ` (${r.status})` : ""}</span></li>)}
+          </ul>
+        </div>
+      )}
+      {codes.map((e) => (
+        <div key={e.code} className="text-xs"><span className="text-gold">{e.code}</span> <span className="text-muted-foreground">— {e.info!.title} (sample code · generic meaning)</span></div>
+      ))}
+      {OIL_PARTS.has(id) && (
+        <>
+          <OilRiskPanel log={SAMPLE_LOG} sample compact />
+          <button type="button" onClick={() => setOilSim(!oilSim)} className="rounded-full border border-gold/60 px-2.5 py-1 text-[11px] text-gold hover:bg-gold/10">
+            {oilSim ? "Hide simulation" : "Show simulated restriction"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
