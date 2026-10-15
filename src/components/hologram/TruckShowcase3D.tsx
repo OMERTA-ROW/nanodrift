@@ -1,6 +1,6 @@
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 // Brand palette for the 3D scene (WebGL can't read CSS tokens).
@@ -8,8 +8,8 @@ const PURPLE = "#a855f7";
 const PURPLE_DEEP = "#6d28d9";
 const GOLD = "#d4a72c";
 const CYAN_COOLANT = "#c084fc";
-const MODEL_URL = "/models/truck.glb";
-const TARGET_LENGTH = 4.6;
+const MODEL_URL = "/models/pickup.glb";
+const TARGET_LENGTH = 5.4;
 
 function flowTexture(color: string) {
   const c = document.createElement("canvas");
@@ -104,7 +104,7 @@ function Internals({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
   );
 }
 
-function Truck({ holo = false }: { holo?: boolean }) {
+function Truck({ holo = false, onToggle }: { holo?: boolean; onToggle?: () => void }) {
   const { scene } = useGLTF(MODEL_URL);
   const group = useRef<THREE.Group>(null);
   const { model, box, solid, ghost, edges } = useMemo(() => {
@@ -121,22 +121,31 @@ function Truck({ holo = false }: { holo?: boolean }) {
     const solid: THREE.Material[] = [];
     const ghost = new THREE.MeshPhysicalMaterial({ color: PURPLE_DEEP, transparent: true, opacity: 0.08, roughness: 0.1, metalness: 0.2, depthWrite: false, side: THREE.DoubleSide });
     const edges = new THREE.Group();
+    const mats: Record<string, THREE.Material> = {
+      paint: new THREE.MeshPhysicalMaterial({ color: "#0a080e", metalness: 0.7, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2, sheen: 0.5, sheenColor: new THREE.Color(PURPLE_DEEP) }),
+      trim: new THREE.MeshPhysicalMaterial({ color: "#121014", metalness: 0.3, roughness: 0.55 }),
+      chrome: new THREE.MeshPhysicalMaterial({ color: "#d9cfa8", metalness: 1, roughness: 0.12, envMapIntensity: 2.2 }),
+      steel: new THREE.MeshPhysicalMaterial({ color: "#3a3540", metalness: 0.95, roughness: 0.3 }),
+      rubber: new THREE.MeshPhysicalMaterial({ color: "#0c0c0d", metalness: 0, roughness: 0.85 }),
+      glass: new THREE.MeshPhysicalMaterial({ color: "#05040a", metalness: 0.2, roughness: 0.02, clearcoat: 1, envMapIntensity: 2.5, transparent: true, opacity: 0.85 }),
+      lamp: new THREE.MeshPhysicalMaterial({ color: "#fff6e6", emissive: "#fff1d6", emissiveIntensity: 1.6, roughness: 0.1, toneMapped: false }),
+      tail: new THREE.MeshPhysicalMaterial({ color: "#3a0612", emissive: "#a01535", emissiveIntensity: 1.2, roughness: 0.15 }),
+    };
     model.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
       m.castShadow = true;
-      const src = m.material as THREE.MeshStandardMaterial;
-      const isWheel = /wheel/i.test(m.name) || /wheel/i.test(m.parent?.name ?? "");
-      void src;
-      const paint = isWheel
-        ? new THREE.MeshPhysicalMaterial({ color: "#151217", metalness: 0.9, roughness: 0.35, emissive: GOLD, emissiveIntensity: 0.06 })
-        : new THREE.MeshPhysicalMaterial({ color: "#0b0910", metalness: 0.85, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.8, sheen: 0.4, sheenColor: new THREE.Color(PURPLE_DEEP) });
+      // Hide plates and anything badge-like so no real marks show.
+      if (/registration|badge|emblem|logo/i.test(m.name + (m.parent?.name ?? ""))) { m.visible = false; return; }
+      const srcName = ((m.material as THREE.Material).name || "").toLowerCase();
+      const key = srcName === "black" ? "trim" : srcName === "white" || srcName === "red" ? "paint" : srcName in mats ? srcName : "paint";
+      const paint = mats[key]!;
       m.userData["paint"] = paint;
       solid.push(paint);
       const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 25), new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.9, toneMapped: false }));
+      e.visible = false;
       m.add(e);
       m.userData["edge"] = e;
-      edges.add();
     });
     return { model, box, solid, ghost, edges };
   }, [scene]);
@@ -144,23 +153,24 @@ function Truck({ holo = false }: { holo?: boolean }) {
   useEffect(() => {
     model.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (!m.isMesh) return;
+      if (!m.isMesh || !m.userData["paint"]) return;
       m.material = holo ? ghost : (m.userData["paint"] as THREE.Material);
       (m.userData["edge"] as THREE.Object3D).visible = holo;
     });
   }, [holo, model, ghost]);
   void solid; void edges;
 
-  useFrame(({ clock }, d) => {
+  useFrame(({ clock }) => {
     if (!group.current) return;
     group.current.position.y = Math.sin(clock.elapsedTime * 1.2) * 0.02;
     ghost.opacity = 0.07 + Math.sin(clock.elapsedTime * 2) * 0.03;
-    void d;
   });
+
+  const click = (e: ThreeEvent<MouseEvent>) => { if (e.delta > 6) return; e.stopPropagation(); onToggle?.(); };
 
   return (
     <group ref={group}>
-      <primitive object={model} />
+      <primitive object={model} onClick={click} onPointerOver={() => (document.body.style.cursor = "pointer")} onPointerOut={() => (document.body.style.cursor = "")} />
       <Internals holo={holo} box={box} />
       <ScanPlane holo={holo} box={box} />
     </group>
@@ -202,7 +212,12 @@ function ScanPlane({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
 }
 
 export default function TruckShowcase3D() {
+  const [holo, setHolo] = useState(false);
   return (
+    <div className="relative h-full w-full">
+    <button type="button" onClick={() => setHolo((h) => !h)} className="btn-outline-neon absolute right-4 top-4 z-10 text-xs" aria-pressed={holo}>
+      {holo ? "Show paint" : "Hologram view"}
+    </button>
     <Canvas shadows dpr={[1, 2]} camera={{ position: window.innerWidth < 640 ? [8.5, 4, 8.5] : [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
       <color attach="background" args={["#050307"]} />
       <fog attach="fog" args={["#050307", 9, 22]} />
@@ -211,7 +226,7 @@ export default function TruckShowcase3D() {
       <pointLight position={[-4, 2, -3]} intensity={30} color={PURPLE} />
       <pointLight position={[3, 1, -4]} intensity={14} color={GOLD} />
       <Suspense fallback={null}>
-        <Truck />
+        <Truck holo={holo} onToggle={() => setHolo((h) => !h)} />
         <Environment resolution={256}>
           <Lightformer intensity={3} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[10, 4, 1]} />
           <Lightformer intensity={2.5} color={PURPLE} position={[-6, 1.5, 0]} rotation-y={Math.PI / 2} scale={[12, 1.2, 1]} />
@@ -229,6 +244,7 @@ export default function TruckShowcase3D() {
       <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={10} blur={2.4} far={3} />
       <OrbitControls makeDefault enablePan enableDamping dampingFactor={0.08} minDistance={3.5} maxDistance={13} maxPolarAngle={Math.PI / 2.05} autoRotate autoRotateSpeed={0.6} target={[0, 0.7, 0]} />
     </Canvas>
+    </div>
   );
 }
 
