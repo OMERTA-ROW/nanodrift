@@ -165,5 +165,5 @@ export function componentsForArea(area: EngineArea): ComponentId[] {
 export const modelPartToComponent: Record<string, ComponentId> = {
   headgasket: "head-gasket", injectors: "injector", hpfp: "hpfp", waterpump: "water-pump", thermostat: "thermostat",
   cts: "coolant-temp-sensor", turbo: "turbo", glowplugs: "glow-plug", oilfilter: "oil-filter", sensors: "nox-sensor",
-  o2sensor: "nox-sensor", alternator: "alternator", starter: "starter", belts: "belt", fusecab: "fuse", fusepdm: "fuse", fusechassis: "fuse",
+  o2sensor: "nox-sensor", sparkplugs: "spark-plug", alternator: "alternator", starter: "starter", belts: "belt", fusecab: "fuse", fusepdm: "fuse", fusechassis: "fuse",
 };
