@@ -115,7 +115,7 @@ const SceneCtx = createContext<Ctx>(null!);
 const LayerCtx = createContext<{ ghost: boolean }>({ ghost: false });
 
 type V3 = [number, number, number];
-type PProps = { id: string; position?: V3; rotation?: V3; color?: string; metal?: number; rough?: number; emissive?: string; glow?: number; children: ReactNode };
+type PProps = { id: string; position?: V3; rotation?: V3; color?: string; metal?: number; rough?: number; emissive?: string; glow?: number; geometry?: THREE.BufferGeometry; children?: ReactNode };
 
 let grainTex: THREE.CanvasTexture | null = null;
 /** Shared fine surface grain (cast metal / rubber texture) used as a subtle bump + roughness variation. */
@@ -156,7 +156,7 @@ function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", 
     <mesh
       position={position}
       rotation={rotation}
-      geometry={geometry}
+      {...(geometry ? { geometry } : {})}
       castShadow={!ghost}
       onClick={click}
       onPointerOver={(e) => { if (ghost) return; e.stopPropagation(); setHover(id); document.body.style.cursor = "pointer"; }}
