@@ -13,7 +13,7 @@ export const confidenceFor = (samples: number): Confidence => (samples < 2 ? "no
 
 export function buildMemory(logs: Log[]): Memory {
   const sorted = [...logs].sort((a, b) => +new Date(a.recorded_at) - +new Date(b.recorded_at));
-  const spanDays = sorted.length > 1 ? Math.round((+new Date(sorted[sorted.length - 1].recorded_at) - +new Date(sorted[0].recorded_at)) / 86_400_000) : 0;
+  const spanDays = sorted.length > 1 ? Math.round((+new Date(sorted[sorted.length - 1]!.recorded_at) - +new Date(sorted[0]!.recorded_at)) / 86_400_000) : 0;
   const series = new Map<SensorKey, number[]>();
   for (const l of sorted) for (const r of readSensors(l.sensor_readings)) series.set(r.key, [...(series.get(r.key) ?? []), r.value]);
 
@@ -21,7 +21,7 @@ export function buildMemory(logs: Log[]): Memory {
   for (const [key, vals] of series) {
     if (vals.length < 2) continue;
     const s = SENSORS[key];
-    const first = vals[0], last = vals[vals.length - 1], change = +(last - first).toFixed(2);
+    const first = vals[0]!, last = vals[vals.length - 1]!, change = +(last - first).toFixed(2);
     const range = s.max - s.min;
     const direction = Math.abs(change) < range * 0.05 ? "steady" : change > 0 ? "rising" : "falling";
     const toward = (direction === "rising" && last > s.max - range * 0.15) || (direction === "falling" && last < s.min + range * 0.15);
