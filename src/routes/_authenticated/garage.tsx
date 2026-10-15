@@ -53,7 +53,7 @@ function Garage() {
         <Section>
           <h2 className="font-display text-2xl font-bold">Vehicle health</h2>
           <div className="mt-6 space-y-6">
-            {data.vehicles.map((v) => <VehicleDashboard key={v.id} vehicle={v} log={data.logs.find((l) => l.vehicle_id === v.id) ?? null} />)}
+            {data.vehicles.map((v) => <VehicleDashboard key={v.id} vehicle={v} log={data.logs.find((l) => l.vehicle_id === v.id) ?? null} history={data.logs.filter((l) => l.vehicle_id === v.id)} />)}
           </div>
         </Section>
       )}
