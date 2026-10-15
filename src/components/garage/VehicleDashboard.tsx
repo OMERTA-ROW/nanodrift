@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { EngineMap } from "@/components/EngineMap";
 import { AgentBubble } from "@/components/brand/Agent";
+import { OilRiskPanel } from "@/components/OilRiskPanel";
 import { components, familyFor } from "@/lib/parts-catalog";
 import { flagsFor, healthScore, maintenanceFor, readSensors, SAMPLE_LOG, scoreStatus, type Log } from "@/lib/vehicle-health";
 
@@ -63,6 +64,8 @@ export function VehicleDashboard({ vehicle, log }: { vehicle: Vehicle; log: Log 
         </div>
         <EngineMap sample={isSample} highlight={flags[0]?.area ?? "ignition"} />
       </div>
+
+      <OilRiskPanel log={active} sample={isSample} />
 
       <div>
         <h3 className="eyebrow">Maintenance heads-up</h3>
