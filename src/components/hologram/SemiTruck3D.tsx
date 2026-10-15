@@ -618,7 +618,7 @@ export default function SemiTruck3D() {
         <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={16} blur={2.4} far={4} resolution={hi ? 1024 : 256} />
         {hi && (
           <EffectComposer multisampling={0}>
-            <N8AO aoRadius={0.6} intensity={2.2} distanceFalloff={0.6} halfRes />
+            <N8AO aoRadius={0.6} intensity={peel === 0 ? 2.2 : 0} distanceFalloff={0.6} halfRes />
             <SMAA />
             <Vignette offset={0.3} darkness={0.55} />
           </EffectComposer>
