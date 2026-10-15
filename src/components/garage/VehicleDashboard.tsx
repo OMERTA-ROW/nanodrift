@@ -3,6 +3,8 @@ import { useState } from "react";
 import { EngineMap } from "@/components/EngineMap";
 import { AgentBubble } from "@/components/brand/Agent";
 import { OilRiskPanel } from "@/components/OilRiskPanel";
+import { NanoMemory } from "@/components/garage/NanoMemory";
+import { sampleHistory } from "@/lib/vehicle-memory";
 import { components, familyFor } from "@/lib/parts-catalog";
 import { flagsFor, healthScore, maintenanceFor, readSensors, SAMPLE_LOG, scoreStatus, type Log } from "@/lib/vehicle-health";
 
@@ -10,7 +12,7 @@ type Vehicle = { id: string; make: string; model: string; year: number };
 
 const tone = { good: "text-primary-glow border-primary", watch: "text-gold border-gold", bad: "text-[#ff3355] border-[#ff3355]" } as const;
 
-export function VehicleDashboard({ vehicle, log }: { vehicle: Vehicle; log: Log | null }) {
+export function VehicleDashboard({ vehicle, log, history = [] }: { vehicle: Vehicle; log: Log | null; history?: Log[] }) {
   const [preview, setPreview] = useState(false);
   const name = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
   const active = log ?? (preview ? SAMPLE_LOG : null);
@@ -66,6 +68,8 @@ export function VehicleDashboard({ vehicle, log }: { vehicle: Vehicle; log: Log 
       </div>
 
       <OilRiskPanel log={active} sample={isSample} />
+
+      <NanoMemory logs={isSample ? sampleHistory(active) : history} sample={isSample} />
 
       <div>
         <h3 className="eyebrow">Maintenance heads-up</h3>
