@@ -55,7 +55,7 @@ type V3 = [number, number, number];
 type PProps = { id: string; position?: V3; rotation?: V3; color?: string; metal?: number; rough?: number; emissive?: string; glow?: number; children: ReactNode };
 
 /** One clickable piece of a named part. */
-function P({ id, position, rotation, color = "#1a1520", metal = 0.6, rough = 0.4, emissive = "#000000", glow = 0, children }: PProps) {
+function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", metal = 0.6, rough = 0.4, emissive = "#000000", glow = 0, children }: PProps) {
   const { sel, setSel, hover, setHover } = useContext(SceneCtx);
   const { ghost } = useContext(LayerCtx);
   const isSel = sel === id;
@@ -69,7 +69,7 @@ function P({ id, position, rotation, color = "#1a1520", metal = 0.6, rough = 0.4
       onClick={click}
       onPointerOver={(e) => { if (ghost) return; e.stopPropagation(); setHover(id); document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { setHover(null); document.body.style.cursor = ""; }}
-      raycast={ghost ? () => null : undefined}
+      {...(ghost ? { raycast: () => null } : {})}
     >
       {children}
       <meshPhysicalMaterial
