@@ -7,6 +7,7 @@ import { AgentBubble } from "@/components/brand/Agent";
 import { supabase } from "@/integrations/supabase/client";
 import { checkCoverage } from "@/lib/nanodrift-data";
 import { formatPrice, plans } from "@/lib/catalog";
+import { VehicleDashboard } from "@/components/garage/VehicleDashboard";
 import { premiumTiers, unlockState } from "@/lib/premium-tiers";
 
 export const Route = createFileRoute("/_authenticated/garage")({
@@ -23,13 +24,14 @@ function useGarage() {
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       const uid = u.user!.id;
-      const [p, v, s, a] = await Promise.all([
+      const [p, v, s, a, d] = await Promise.all([
         supabase.from("profiles").select("display_name, phone").eq("id", uid).maybeSingle(),
         supabase.from("vehicles").select("id, make, model, year").order("created_at"),
         supabase.from("subscriptions").select("plan_id, status, renews_at").eq("user_id", uid).maybeSingle(),
         supabase.from("agreements").select("id, title, plan_id, tier_id, signature_kind, agreement_version, signed_at").order("signed_at", { ascending: false }),
+        supabase.from("diagnostic_logs").select("vehicle_id, recorded_at, health_score, sensor_readings, trouble_codes, notes").order("recorded_at", { ascending: false }).limit(200),
       ]);
-      return { uid, email: u.user!.email ?? "", profile: p.data, vehicles: v.data ?? [], sub: s.data, agreements: a.data ?? [] };
+      return { uid, email: u.user!.email ?? "", profile: p.data, vehicles: v.data ?? [], sub: s.data, agreements: a.data ?? [], logs: d.data ?? [] };
     },
   });
 }
@@ -47,6 +49,14 @@ function Garage() {
   return (
     <>
       <PageHero eyebrow="My Garage" title={`Welcome, ${data.profile?.display_name || "driver"}.`} intro="Add your vehicles, check your plan and review your signed agreements." />
+      {data.vehicles.length > 0 && (
+        <Section>
+          <h2 className="font-display text-2xl font-bold">Vehicle health</h2>
+          <div className="mt-6 space-y-6">
+            {data.vehicles.map((v) => <VehicleDashboard key={v.id} vehicle={v} log={data.logs.find((l) => l.vehicle_id === v.id) ?? null} />)}
+          </div>
+        </Section>
+      )}
       <Section>
         <AgentBubble className="mb-10 max-w-xl">Add your rides and I'll tell you which are ready for launch. Once your device ships, live diagnostics show up right here.</AgentBubble>
         <div className="grid gap-6 lg:grid-cols-3">
