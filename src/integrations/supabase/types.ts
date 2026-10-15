@@ -16,23 +16,38 @@ export type Database = {
     Tables: {
       agreements: {
         Row: {
+          acknowledged: boolean
+          agreement_version: string | null
           id: string
           plan_id: string
+          signature: string | null
+          signature_kind: string | null
           signed_at: string
+          tier_id: string | null
           title: string
           user_id: string
         }
         Insert: {
+          acknowledged?: boolean
+          agreement_version?: string | null
           id?: string
           plan_id: string
+          signature?: string | null
+          signature_kind?: string | null
           signed_at?: string
+          tier_id?: string | null
           title: string
           user_id: string
         }
         Update: {
+          acknowledged?: boolean
+          agreement_version?: string | null
           id?: string
           plan_id?: string
+          signature?: string | null
+          signature_kind?: string | null
           signed_at?: string
+          tier_id?: string | null
           title?: string
           user_id?: string
         }
@@ -236,7 +251,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_premium_unlock: { Args: { _tier: string }; Returns: boolean }
+      sign_premium_agreement: {
+        Args: {
+          _acknowledged: boolean
+          _kind: string
+          _signature: string
+          _tier: string
+          _version: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
