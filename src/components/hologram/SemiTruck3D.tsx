@@ -1,4 +1,5 @@
 import { modelPartToComponent } from "@/lib/parts-catalog";
+import * as TG from "./truck-geometry";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor } from "@react-three/drei";
 import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
@@ -228,6 +229,7 @@ function Tube({ id, pts, color, r = 0.03, flow = 0 }: { id: string; pts: V3[]; c
 }
 
 const PAINT = "#0b0910";
+const FENDER = TG.fender(3.6, 0.52);
 const CHROME = "#e6dcc0";
 const RUBBER = "#0c0c0d";
 
@@ -526,7 +528,7 @@ function Semi() {
         <P id="cab" position={[2.15, 2.56, 0]} rotation={[0, 0, TG.WINDSHIELD_ANGLE]} color="#0a0d14" metal={0.2} rough={0.02}><boxGeometry args={[0.03, 0.8, 1.9]} /></P>
         <P id="cab" position={[2.26, 2.04, 0]} color={CHROME} metal={1} rough={0.12}><boxGeometry args={[0.02, 0.04, 1.96]} /></P>
         {[1.15, -1.15].map((z) => (
-          <P key={`sw${z}`} id="cab" position={[0, 0, z]} rotation={[0, z < 0 ? Math.PI : 0, 0]} color="#0a0d14" metal={0.2} rough={0.02}><primitive object={TG.SIDE_WINDOW} attach="geometry" /></P>
+          <P key={`sw${z}`} id="cab" position={[0, z < 0 ? 5.18 : 0, z]} rotation={[z < 0 ? Math.PI : 0, 0, 0]} color="#0a0d14" metal={0.2} rough={0.02}><primitive object={TG.SIDE_WINDOW} attach="geometry" /></P>
         ))}
         <P id="cab" position={[2.05, 3.1, 0]} rotation={[0, 0, -0.25]} color={PAINT} metal={0.7} rough={0.2}><boxGeometry args={[0.35, 0.04, 2.1]} /></P>
         {[-0.6, -0.3, 0, 0.3, 0.6].map((z) => (
