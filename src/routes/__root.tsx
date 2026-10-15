@@ -62,7 +62,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "AI-powered universal vehicle diagnostics and tuning." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "impact-site-verification", value: "e029b390-3eaa-4aa1-88a5-629b7b945d6a" } as any,
+      { name: "impact-site-verification", value: "b31ece9b-fbc5-408e-aef7-b5480ffac5af" } as any,
     ],
     links: [
       { rel: "stylesheet", href: appCss },
