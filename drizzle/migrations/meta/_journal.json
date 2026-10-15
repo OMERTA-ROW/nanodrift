@@ -15,6 +15,13 @@
       "when": 1792007891292,
       "tag": "0001_diagnostic_logs_and_tune_records",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792032306256,
+      "tag": "0002_migration",
+      "breakpoints": true
     }
   ]
 }
