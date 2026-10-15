@@ -4,6 +4,7 @@ import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMat
 import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
+import { ENGINE_FAMILIES, cylinderLayout, getEngineFamily, type EngineFamilyDef, type EngineFamilyId } from "@/lib/engine-families";
 
 // Brand palette for WebGL (cannot read CSS tokens).
 const PURPLE = "#a855f7";
@@ -26,7 +27,7 @@ export const PARTS: Record<string, PartInfo> = {
   fifth: { name: "Fifth wheel", layer: 1, what: "Coupling plate that locks onto the trailer kingpin.", status: "ok", note: "Lock sensor reports engaged." },
   wheels: { name: "Wheels & tires", layer: 1, what: "Steer tires up front, dual tires on both drive axles.", status: "watch", note: "Sample: rear-left outer tire 8 psi below its pair." },
   steer: { name: "Steer axle", layer: 1, what: "Front axle beam with steering knuckles.", status: "ok", note: "Alignment within spec." },
-  block: { name: "Cylinder block & cylinders", layer: 2, what: "Cast-iron heart of the inline-six — holds the six cylinder bores the pistons ride in.", status: "ok", note: "Compression balance even across all six cylinders." },
+  block: { name: "Cylinder block & cylinders", layer: 2, what: "Main casting of the engine — holds the cylinder bores the pistons ride in.", status: "ok", note: "Compression balance even across all cylinders (sample)." },
   pistons: { name: "Pistons & connecting rods", layer: 2, what: "Pistons take the force of combustion; rods pass it down to the crankshaft.", status: "ok", note: "No blow-by trend detected." },
   crankshaft: { name: "Crankshaft", layer: 2, what: "Turns the pistons' up-and-down motion into rotation.", status: "ok", note: "Crank speed steady, no misfire pattern." },
   camshaft: { name: "Camshaft", layer: 2, what: "Spinning shaft whose lobes open the valves in time with the pistons.", status: "ok", note: "Cam/crank timing in sync." },
@@ -39,6 +40,7 @@ export const PARTS: Record<string, PartInfo> = {
   intercooler: { name: "Intercooler", layer: 2, what: "Cools the hot boosted air before it enters the engine.", status: "ok", note: "Charge-air temp drop normal." },
   injectors: { name: "Fuel injectors (x6)", layer: 2, what: "Spray precisely timed fuel into each cylinder.", status: "watch", note: "Sample: cylinder 4 balance rate slightly high — keep an eye on it." },
   hpfp: { name: "High-pressure fuel pump", layer: 2, what: "Pressurises diesel for the common-rail injectors.", status: "ok", note: "Rail pressure tracking target." },
+  sparkplugs: { name: "Spark plugs", layer: 2, what: "Fire the air-fuel mix in each cylinder of a gas engine.", status: "ok", note: "No misfire pattern (sample)." },
   glowplugs: { name: "Glow plugs (x6)", layer: 2, what: "Heat each cylinder for easy cold starts.", status: "fault", note: "Sample: glow plug 5 open circuit — harder cold starts." },
   oilpan: { name: "Oil pan", layer: 2, what: "Reservoir under the engine holding the oil supply.", status: "ok", note: "Oil level within range." },
   oilpump: { name: "Oil pump", layer: 2, what: "Pushes oil through the engine to every bearing.", status: "ok", note: "Pump output normal." },
@@ -265,33 +267,40 @@ function Ex({ dir, children }: { dir: V3; children: ReactNode }) {
   return <group ref={ref}>{children}</group>;
 }
 
-const CYL_X = [2.6, 2.8, 3.0, 3.2, 3.4, 3.6];
+const FamilyCtx = createContext<EngineFamilyDef>(ENGINE_FAMILIES[0]!);
+function useCyl() {
+  const fam = useContext(FamilyCtx);
+  return useMemo(() => cylinderLayout(fam), [fam]);
+}
 const STEEL = "#3a3540";
 
 function EngineDetail() {
+  const fam = useContext(FamilyCtx);
+  const cyl = useCyl();
+  const r = fam.layout === "v" ? 0.07 : 0.085;
   return (
     <>
       {/* Block + cylinders slide out sideways to expose the rotating assembly */}
       <Ex dir={[0, 0, -1.3]}>
         <P id="block" position={[3.1, 1.45, 0]} color="#141016" metal={0.9} rough={0.35} emissive={PURPLE_DEEP} glow={0.2}><boxGeometry args={[1.3, 0.5, 0.6]} /></P>
-        {CYL_X.map((x) => (
-          <P key={x} id="block" position={[x, 1.71, 0]} color="#0c0810" emissive={PURPLE} glow={0.5}><cylinderGeometry args={[0.085, 0.085, 0.03, 20]} /></P>
+        {cyl.map(({ x, z }) => (
+          <P key={`${x}${z}`} id="block" position={[x, 1.71, z]} color="#0c0810" emissive={PURPLE} glow={0.5}><cylinderGeometry args={[r, r, 0.03, 20]} /></P>
         ))}
         <Tube id="coolantpass" color={COOLANT} r={0.02} flow={1.5} pts={[[2.45, 1.6, 0.31], [3.1, 1.62, 0.31], [3.75, 1.6, 0.31]]} />
         <Tube id="coolantpass" color={COOLANT} r={0.02} flow={1.5} pts={[[2.45, 1.4, 0.31], [3.1, 1.38, 0.31], [3.75, 1.4, 0.31]]} />
       </Ex>
       <Ex dir={[0, 0.35, 0]}>
-        {CYL_X.map((x) => (
-          <P key={x} id="pistons" position={[x, 1.6, 0]} color="#8a8090" metal={1} rough={0.2} emissive={GOLD} glow={0.15}><cylinderGeometry args={[0.08, 0.08, 0.1, 20]} /></P>
+        {cyl.map(({ x, z }) => (
+          <P key={`${x}${z}`} id="pistons" position={[x, 1.6, z]} color="#8a8090" metal={1} rough={0.2} emissive={GOLD} glow={0.15}><cylinderGeometry args={[r - 0.005, r - 0.005, 0.1, 20]} /></P>
         ))}
-        {CYL_X.map((x) => (
-          <P key={x} id="pistons" position={[x, 1.42, 0]} color={STEEL} metal={1} rough={0.3}><boxGeometry args={[0.03, 0.28, 0.05]} /></P>
+        {cyl.map(({ x, z }) => (
+          <P key={`${x}${z}`} id="pistons" position={[x, 1.42, z * 0.5]} color={STEEL} metal={1} rough={0.3}><boxGeometry args={[0.03, 0.28, 0.05]} /></P>
         ))}
       </Ex>
       <Ex dir={[0, -0.4, 0]}>
         <P id="crankshaft" position={[3.1, 1.26, 0]} rotation={[0, 0, Math.PI / 2]} color="#5a5260" metal={1} rough={0.2} emissive={GOLD} glow={0.2}><cylinderGeometry args={[0.04, 0.04, 1.4, 12]} /></P>
-        {CYL_X.map((x, i) => (
-          <P key={x} id="crankshaft" position={[x, 1.26 + (i % 2 ? 0.05 : -0.05), 0]} color="#5a5260" metal={1}><boxGeometry args={[0.04, 0.16, 0.12]} /></P>
+        {cyl.map(({ x, z }, i) => (
+          <P key={`${x}${z}`} id="crankshaft" position={[x, 1.26 + (i % 2 ? 0.05 : -0.05), 0]} color="#5a5260" metal={1}><boxGeometry args={[0.04, 0.16, 0.12]} /></P>
         ))}
       </Ex>
       <Ex dir={[0, -0.95, 0]}>
@@ -311,8 +320,8 @@ function EngineDetail() {
         <P id="head" position={[3.1, 1.81, 0]} color="#1e1824" metal={0.9} rough={0.3} emissive={PURPLE_DEEP} glow={0.2}><boxGeometry args={[1.28, 0.17, 0.56]} /></P>
       </Ex>
       <Ex dir={[0, 1.15, 0]}>
-        {CYL_X.map((x) => (
-          <P key={x} id="glowplugs" position={[x + 0.05, 1.93, 0.18]} color="#3a1a05" emissive="#ff7a1a" glow={0.8}><cylinderGeometry args={[0.012, 0.012, 0.09, 8]} /></P>
+        {cyl.map(({ x, z }) => (
+          <P key={`${x}${z}`} id={fam.fuel === "diesel" ? "glowplugs" : "sparkplugs"} position={[x + 0.05, 1.93, z + (z < 0 ? -0.1 : 0.18)]} color="#3a1a05" emissive={fam.fuel === "diesel" ? "#ff7a1a" : "#c9d4ff"} glow={0.8}><cylinderGeometry args={[0.012, 0.012, 0.09, 8]} /></P>
         ))}
         <Injectors />
       </Ex>
@@ -320,11 +329,11 @@ function EngineDetail() {
         <P id="camshaft" position={[3.1, 1.97, -0.12]} rotation={[0, 0, Math.PI / 2]} color="#5a5260" metal={1} rough={0.2} emissive={GOLD} glow={0.25}><cylinderGeometry args={[0.03, 0.03, 1.3, 12]} /></P>
       </Ex>
       <Ex dir={[0, 1.6, 0]}>
-        {CYL_X.map((x) => (
-          <group key={x}>
-            <P id="valvetrain" position={[x - 0.04, 2.05, -0.12]} color={STEEL} metal={1}><boxGeometry args={[0.03, 0.03, 0.24]} /></P>
+        {cyl.map(({ x, z }) => (
+          <group key={`${x}${z}`} position={[0, 0, z]}>
+            <P id="valvetrain" position={[x - 0.04, 2.05, -0.12]} color={STEEL} metal={1}><boxGeometry args={[0.03, 0.03, fam.layout === "v" ? 0.12 : 0.24]} /></P>
             <P id="valvetrain" position={[x - 0.04, 2.0, -0.03]} color="#8a8090" metal={1}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /></P>
-            <P id="valvetrain" position={[x - 0.04, 1.99, -0.22]} color="#8a8090" metal={1}><cylinderGeometry args={[0.02, 0.02, 0.06, 10]} /></P>
+            <P id="valvetrain" position={[x - 0.04, 1.99, fam.layout === "v" ? -0.16 : -0.22]} color="#8a8090" metal={1}><cylinderGeometry args={[0.02, 0.02, 0.06, 10]} /></P>
           </group>
         ))}
       </Ex>
@@ -336,6 +345,8 @@ function EngineDetail() {
       <Ex dir={[0, 0.4, -1.6]}>
         <P id="exhaust" position={[3.1, 1.72, -0.36]} color="#4a2a10" metal={1} rough={0.35} emissive="#ff7a1a" glow={0.35}><boxGeometry args={[1.2, 0.1, 0.1]} /></P>
       </Ex>
+      {fam.turbo && (
+        <>
       <Ex dir={[0, 0.6, -2.0]}>
         <P id="turbo" position={[2.7, 1.8, -0.55]} color="#3a2d16" metal={1} rough={0.25} emissive={GOLD} glow={0.35}><sphereGeometry args={[0.16, 24, 24]} /></P>
         <P id="turbo" position={[2.7, 1.8, -0.72]} rotation={[Math.PI / 2, 0, 0]} color="#3a2d16" metal={1}><cylinderGeometry args={[0.1, 0.1, 0.1, 20]} /></P>
@@ -343,8 +354,10 @@ function EngineDetail() {
       <Ex dir={[0.6, 0, 0]}>
         <P id="intercooler" position={[4.24, 1.55, 0]} color="#0d0812" emissive={PURPLE} glow={0.6}><boxGeometry args={[0.05, 0.55, 1.0]} /></P>
       </Ex>
+        </>
+      )}
       <Ex dir={[0, 0, 1.3]}>
-        <P id="hpfp" position={[2.55, 1.42, 0.4]} color="#2a1e10" metal={0.9} emissive={GOLD} glow={0.5}><boxGeometry args={[0.2, 0.16, 0.14]} /></P>
+        {fam.fuel === "diesel" && <P id="hpfp" position={[2.55, 1.42, 0.4]} color="#2a1e10" metal={0.9} emissive={GOLD} glow={0.5}><boxGeometry args={[0.2, 0.16, 0.14]} /></P>}
       </Ex>
       {/* Front of engine: cooling + accessory drive */}
       <Ex dir={[0.75, 0, 0]}>
@@ -402,12 +415,13 @@ function FuseBox({ id, position, rotation = [0, 0, 0] }: { id: string; position:
 
 function Injectors() {
   const refs = useRef<THREE.Mesh[]>([]);
+  const cyl = useCyl();
   return (
     <>
-      {[2.6, 2.8, 3.0, 3.2, 3.4, 3.6].map((x, i) => (
-        <group key={x} position={[x, 2.0, 0]}>
+      {cyl.map(({ x, z }, i) => (
+        <group key={`${x}${z}`} position={[x, 2.0, z]}>
           <P id="injectors" color="#2a1a05" emissive={GOLD} glow={0.9} metal={0.8}><cylinderGeometry args={[0.035, 0.03, 0.16, 12]} /></P>
-          <Pulse i={i} refs={refs} />
+          <Pulse i={i} n={cyl.length} refs={refs} />
         </group>
       ))}
     </>
@@ -415,13 +429,14 @@ function Injectors() {
 }
 
 /** Combustion flash under each injector, in firing order. */
-function Pulse({ i, refs }: { i: number; refs: React.MutableRefObject<THREE.Mesh[]> }) {
+function Pulse({ i, n, refs }: { i: number; n: number; refs: React.MutableRefObject<THREE.Mesh[]> }) {
   const { ghost } = useContext(LayerCtx);
-  const order = [0, 4, 2, 5, 1, 3][i]!;
+  // Illustrative flash sequence only — not a real firing order.
+  const order = n === 6 ? [0, 4, 2, 5, 1, 3][i]! : (i * (n === 4 ? 3 : 3)) % n;
   useFrame(({ clock }) => {
     const m = refs.current[i];
     if (!m) return;
-    const f = Math.max(0, Math.sin(clock.elapsedTime * 10 - order * (Math.PI / 3)));
+    const f = Math.max(0, Math.sin(clock.elapsedTime * 10 - order * ((2 * Math.PI) / n)));
     (m.material as THREE.MeshBasicMaterial).opacity = f * f * 0.9;
   });
   return (
@@ -574,6 +589,8 @@ export default function SemiTruck3D() {
   const [peel, setPeel] = useState(0);
   const [explode, setExplode] = useState(0);
   const [motor, setMotor] = useState(0);
+  const [famId, setFamId] = useState<EngineFamilyId>("bigrig-i6-diesel");
+  const fam = getEngineFamily(famId);
   const part = sel ? PARTS[sel] : null;
   const narrow = typeof window !== "undefined" && window.innerWidth < 640;
   const [quality, setQuality] = useState<"auto" | "high" | "low">("auto");
@@ -607,7 +624,7 @@ export default function SemiTruck3D() {
           <Lightformer form="ring" intensity={2} position={[0, 3, -9]} scale={4} />
         </Environment>
         <SceneCtx.Provider value={{ sel, setSel, hover, setHover, peel, explode, motor }}>
-          <Semi />
+          <FamilyCtx.Provider value={fam}><Semi /></FamilyCtx.Provider>
         </SceneCtx.Provider>
         <mesh rotation-x={-Math.PI / 2} position={[0, -0.001, 0]}>
           <planeGeometry args={[60, 60]} />
@@ -629,7 +646,8 @@ export default function SemiTruck3D() {
       {part && (
         <div className="holo-panel absolute right-3 top-14 z-10 w-64 max-w-[80%] p-4 text-sm">
           <div className="eyebrow">{LAYERS[part.layer]}</div>
-          <div className="mt-1 font-bold text-primary-glow">{part.name}</div>
+          <div className="mt-1 font-bold text-primary-glow">{part.name.replace("(x6)", `(x${fam.cylinders})`)}</div>
+          {part.layer === 2 && <div className="text-[10px] uppercase tracking-widest text-gold">{fam.label} · representative</div>}
           <p className="mt-1 text-xs text-muted-foreground">{part.what}</p>
           <div className="mt-2 text-xs"><span className={part.status === "ok" ? "text-primary-glow" : "text-gold"}>● {statusLabel[part.status]}</span></div>
           <p className="mt-1 text-xs text-muted-foreground">{part.note}</p>
@@ -641,6 +659,7 @@ export default function SemiTruck3D() {
       )}
 
       <div className="absolute inset-x-3 bottom-3 z-10 flex flex-col gap-2">
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Representative model · {fam.label} ({fam.examples}) · not an exact match for any specific vehicle</p>
         <div className="flex flex-wrap gap-1.5">
           {LAYERS.map((l, i) => (
             <button key={l} type="button" onClick={() => setPeel(i)} aria-pressed={peel === i}
@@ -657,6 +676,13 @@ export default function SemiTruck3D() {
           <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
             Motor breakdown
             <input type="range" min={0} max={1} step={0.01} value={motor} onChange={(e) => { setMotor(+e.target.value); if (peel < 2) setPeel(2); }} className="w-28 accent-gold" aria-label="Break down the motor" />
+          </label>
+          <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            Engine
+            <select value={famId} onChange={(e) => { setFamId(e.target.value as EngineFamilyId); setSel(null); }} aria-label="Representative engine family"
+              className="rounded border border-primary/50 bg-background px-1.5 py-0.5 text-[11px] text-foreground">
+              {ENGINE_FAMILIES.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+            </select>
           </label>
           <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
             Quality
