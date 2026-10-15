@@ -212,7 +212,12 @@ function ScanPlane({ holo, box }: { holo: boolean; box: THREE.Box3 }) {
 }
 
 export default function TruckShowcase3D() {
+  const [holo, setHolo] = useState(false);
   return (
+    <div className="relative h-full w-full">
+    <button type="button" onClick={() => setHolo((h) => !h)} className="btn-outline-neon absolute right-4 top-4 z-10 text-xs" aria-pressed={holo}>
+      {holo ? "Show paint" : "Hologram view"}
+    </button>
     <Canvas shadows dpr={[1, 2]} camera={{ position: window.innerWidth < 640 ? [8.5, 4, 8.5] : [5.2, 2.6, 5.2], fov: 38 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}>
       <color attach="background" args={["#050307"]} />
       <fog attach="fog" args={["#050307", 9, 22]} />
@@ -221,7 +226,7 @@ export default function TruckShowcase3D() {
       <pointLight position={[-4, 2, -3]} intensity={30} color={PURPLE} />
       <pointLight position={[3, 1, -4]} intensity={14} color={GOLD} />
       <Suspense fallback={null}>
-        <Truck />
+        <Truck holo={holo} onToggle={() => setHolo((h) => !h)} />
         <Environment resolution={256}>
           <Lightformer intensity={3} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[10, 4, 1]} />
           <Lightformer intensity={2.5} color={PURPLE} position={[-6, 1.5, 0]} rotation-y={Math.PI / 2} scale={[12, 1.2, 1]} />
@@ -239,6 +244,7 @@ export default function TruckShowcase3D() {
       <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={10} blur={2.4} far={3} />
       <OrbitControls makeDefault enablePan enableDamping dampingFactor={0.08} minDistance={3.5} maxDistance={13} maxPolarAngle={Math.PI / 2.05} autoRotate autoRotateSpeed={0.6} target={[0, 0.7, 0]} />
     </Canvas>
+    </div>
   );
 }
 

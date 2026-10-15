@@ -16,7 +16,7 @@ export function HoloShowcase() {
       </div>
       <div className="pointer-events-none absolute left-4 top-4 flex max-w-[85%] flex-col gap-1">
         <span className="eyebrow">Heavy-duty diesel · showcase</span>
-        <span className="text-xs text-muted-foreground">Drag to spin · scroll or pinch to zoom · right-drag to move</span>
+        <span className="text-xs text-muted-foreground">Drag to spin · zoom · tap the truck for hologram view</span>
       </div>
     </div>
   );
