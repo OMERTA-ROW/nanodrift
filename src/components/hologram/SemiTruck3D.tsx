@@ -84,6 +84,34 @@ const LayerCtx = createContext<{ ghost: boolean }>({ ghost: false });
 type V3 = [number, number, number];
 type PProps = { id: string; position?: V3; rotation?: V3; color?: string; metal?: number; rough?: number; emissive?: string; glow?: number; children: ReactNode };
 
+let grainTex: THREE.CanvasTexture | null = null;
+/** Shared fine surface grain (cast metal / rubber texture) used as a subtle bump + roughness variation. */
+function grain() {
+  if (grainTex) return grainTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d")!;
+  const img = g.createImageData(128, 128);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = 150 + Math.random() * 105;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  grainTex = new THREE.CanvasTexture(c);
+  grainTex.wrapS = grainTex.wrapT = THREE.RepeatWrapping;
+  grainTex.repeat.set(4, 4);
+  return grainTex;
+}
+
+/** Splits parts into paint / chrome / cast metal / rubber / plastic so each reads as a different real surface. */
+function surfaceFor(color: string, metal: number, rough: number): Partial<THREE.MeshPhysicalMaterialParameters> {
+  if (color === PAINT) return { metalness: 0.35, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 };
+  if (metal < 0.15 && rough >= 0.8) return { metalness: 0, roughness: 0.92, sheen: 0.4, sheenRoughness: 0.8, sheenColor: new THREE.Color("#3a3340"), bumpMap: grain(), bumpScale: 0.6 };
+  if (metal >= 0.9 && rough <= 0.2) return { metalness: 1, roughness: Math.max(rough, 0.08), clearcoat: 0.3, clearcoatRoughness: 0.1 };
+  if (metal >= 0.5) return { metalness: metal, roughness: Math.min(1, rough + 0.08), roughnessMap: grain(), bumpMap: grain(), bumpScale: 0.25 };
+  return { metalness: Math.min(metal, 0.1), roughness: Math.max(rough, 0.45), clearcoat: 0.15, clearcoatRoughness: 0.4 };
+}
+
 /** One clickable piece of a named part. */
 function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", metal = 0.6, rough = 0.4, emissive = "#000000", glow = 0, children }: PProps) {
   const { sel, setSel, hover, setHover } = useContext(SceneCtx);
@@ -104,15 +132,14 @@ function P({ id, position = [0, 0, 0], rotation = [0, 0, 0], color = "#1a1520", 
       {children}
       <meshPhysicalMaterial
         color={color}
-        metalness={metal}
-        roughness={rough}
-        clearcoat={0.6}
+        {...surfaceFor(color, metal, rough)}
         emissive={isSel ? GOLD : isHover ? PURPLE : emissive}
         emissiveIntensity={isSel ? 1.4 : isHover ? 0.8 : glow}
         transparent={ghost}
         opacity={ghost ? 0.06 : 1}
         depthWrite={!ghost}
       />
+
     </mesh>
   );
 }
