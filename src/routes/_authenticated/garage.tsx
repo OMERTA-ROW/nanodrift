@@ -7,6 +7,7 @@ import { AgentBubble } from "@/components/brand/Agent";
 import { supabase } from "@/integrations/supabase/client";
 import { checkCoverage } from "@/lib/nanodrift-data";
 import { formatPrice, plans } from "@/lib/catalog";
+import { premiumTiers, unlockState } from "@/lib/premium-tiers";
 
 export const Route = createFileRoute("/_authenticated/garage")({
   staticData: { sitemap: false },
@@ -26,7 +27,7 @@ function useGarage() {
         supabase.from("profiles").select("display_name, phone").eq("id", uid).maybeSingle(),
         supabase.from("vehicles").select("id, make, model, year").order("created_at"),
         supabase.from("subscriptions").select("plan_id, status, renews_at").eq("user_id", uid).maybeSingle(),
-        supabase.from("agreements").select("id, title, plan_id, signed_at").order("signed_at", { ascending: false }),
+        supabase.from("agreements").select("id, title, plan_id, tier_id, signature_kind, agreement_version, signed_at").order("signed_at", { ascending: false }),
       ]);
       return { uid, email: u.user!.email ?? "", profile: p.data, vehicles: v.data ?? [], sub: s.data, agreements: a.data ?? [] };
     },
@@ -40,7 +41,8 @@ function Garage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["garage"] });
 
   if (isLoading || !data) return <Section><p className="text-muted-foreground">Loading your garage…</p></Section>;
-  const plan = plans.find((p) => p.id === (data.sub?.plan_id ?? "core")) ?? plans[0]!;
+  const premium = premiumTiers.find((t) => t.id === data.sub?.plan_id);
+  const plan = premium ? { name: premium.name, pricePerYear: premium.pricePerYear } : plans.find((p) => p.id === (data.sub?.plan_id ?? "core")) ?? plans[0]!;
 
   return (
     <>
@@ -95,8 +97,26 @@ function Garage() {
             {data.agreements.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">No signed agreements yet.</p>
             ) : (
-              <ul className="mt-3 space-y-2">{data.agreements.map((a) => <li key={a.id} className="rounded-md border p-3 text-sm"><span className="font-bold">{a.title}</span> · signed {new Date(a.signed_at).toLocaleDateString()}</li>)}</ul>
+              <ul className="mt-3 space-y-2">{data.agreements.map((a) => <li key={a.id} className="rounded-md border p-3 text-sm"><span className="font-bold">{a.title}</span> · signed {new Date(a.signed_at).toLocaleString()}{a.signature_kind && <> · {a.signature_kind} signature</>}{a.agreement_version && <> · v{a.agreement_version}</>}</li>)}</ul>
             )}
+          </div>
+
+          <div className="holo-panel p-6 lg:col-span-3">
+            <h2 className="eyebrow">Premium unlocks</h2>
+            <p className="mt-2 text-xs text-muted-foreground">Each unlock needs its own signed agreement and an active matching subscription.</p>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {premiumTiers.map((t) => {
+                const state = unlockState(t.id, data.agreements.map((a) => a.tier_id ?? ""), data.sub);
+                return (
+                  <div key={t.id} className="rounded-md border border-primary/40 p-4">
+                    <div className="font-bold text-primary-glow">{t.name}</div>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.capability}</p>
+                    <div className={`mt-3 text-xs ${state === "unlocked" ? "text-primary-glow" : "text-gold"}`}>● {state === "unlocked" ? "Unlocked" : state === "signed" ? "Signed · activates once its subscription is active" : "Locked · signature required"}</div>
+                    {state === "locked" && <Link to="/agreement/$tier" params={{ tier: t.id }} className="btn-outline-neon mt-3 w-full !py-1.5 text-xs">Read & sign</Link>}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className="holo-panel p-6">
