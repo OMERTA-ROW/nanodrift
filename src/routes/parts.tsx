@@ -7,10 +7,11 @@ type Search = { component?: ComponentId; family?: EngineFamily; vehicle?: string
 
 export const Route = createFileRoute("/parts")({
   staticData: { sitemap: true },
-  validateSearch: (s: Record<string, unknown>): Search => {
+  validateSearch: (raw: Record<string, unknown>): Search => {
+    const s = raw as { component?: unknown; family?: unknown; make?: unknown; model?: unknown; year?: unknown; vehicle?: unknown };
     const out: Search = {};
-    if (typeof s.component === "string" && s.component in components) out.component = s.component as ComponentId;
-    if (typeof s.family === "string" && s.family in familyLabel) out.family = s.family as EngineFamily;
+    if (typeof s.component === "string" && (s.component as string) in components) out.component = s.component as ComponentId;
+    if (typeof s.family === "string" && (s.family as string) in familyLabel) out.family = s.family as EngineFamily;
     if (typeof s.make === "string" && typeof s.model === "string" && !out.family) out.family = familyFor(s.make, s.model);
     if (typeof s.vehicle === "string") out.vehicle = s.vehicle.slice(0, 80);
     else if (typeof s.make === "string" && typeof s.model === "string") out.vehicle = `${s.year ?? ""} ${s.make} ${s.model}`.trim().slice(0, 80);

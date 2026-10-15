@@ -1,5 +1,5 @@
 import { components, componentsForArea, familyFor, findParts } from "@/lib/parts-catalog";
-import { Link, createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHero, Section, seo } from "@/components/Section";
 import { AgentBubble } from "@/components/brand/Agent";
