@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 /**
  * Curved body panels for the procedural semi. Side profiles are drawn in the truck's
@@ -90,3 +91,124 @@ export const TYRE = new THREE.LatheGeometry(tyrePts.map(([r, y]) => new THREE.Ve
 /** Dished steel/alloy rim face with a raised hub. */
 const rimPts: Pt[] = [[0.0, 0.12], [0.1, 0.125], [0.14, 0.1], [0.24, 0.085], [0.3, 0.11], [0.335, 0.14], [0.335, -0.14], [0.3, -0.12], [0.0, -0.11]];
 export const RIM = new THREE.LatheGeometry(rimPts.map(([r, y]) => new THREE.Vector2(r, y)), 40);
+
+// ---------------------------------------------------------------------------
+// Heavy-truck tyres (295/75R22.5-style proportions). All tyre geometry is built once and
+// shared by every wheel; tread lugs are merged into one geometry so each tyre stays a few draw calls.
+// Wheel-group space: axle = y, outward sidewall = +y (wheels mirror the rim on the far side).
+
+const TREAD_BASE = 0.49;
+const TREAD_TOP = 0.525;
+const HALF_W = 0.135;
+
+/** Carcass: thick sidewalls that bulge past the tread width, rounded shoulders, bead seat on the rim. */
+const carcassPts: Pt[] = [
+  [0.335, -0.118], [0.36, -0.13], [0.39, -0.148], [0.42, -0.158], [0.45, -0.158], [0.475, -0.15], [0.488, -0.135], [TREAD_BASE + 0.004, -0.11],
+  [TREAD_BASE + 0.004, 0.11], [0.488, 0.135], [0.475, 0.15], [0.45, 0.158], [0.42, 0.158], [0.39, 0.148], [0.36, 0.13], [0.335, 0.118],
+];
+export const TYRE_CARCASS = new THREE.LatheGeometry(carcassPts.map(([r, y]) => new THREE.Vector2(r, y)), 64);
+
+/** Raised concentric sidewall ribs (rim-protector + mid-wall lines) on both faces. */
+function sidewallRibs() {
+  const parts: THREE.BufferGeometry[] = [];
+  for (const side of [1, -1]) {
+    for (const [r, y] of [[0.352, 0.128], [0.402, 0.156], [0.468, 0.154]] as Pt[]) {
+      const g = new THREE.TorusGeometry(r, 0.0065, 6, 72);
+      g.rotateX(Math.PI / 2);
+      g.translate(0, side * (y + 0.004), 0);
+      parts.push(g);
+    }
+  }
+  return mergeGeometries(parts)!;
+}
+export const TYRE_RIBS = sidewallRibs();
+
+/** A lug block wrapped onto the tread: tangential length, axial width, axial centre, skew. */
+function lugRing(n: number, len: number, width: number, yc: number, phase: number, skew: number) {
+  const out: THREE.BufferGeometry[] = [];
+  const h = TREAD_TOP - TREAD_BASE;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + phase;
+    const b = new THREE.BoxGeometry(h, width, len);
+    b.rotateX(skew);
+    b.translate(TREAD_BASE + h / 2, yc, 0);
+    b.rotateY(a);
+    out.push(b);
+  }
+  return out;
+}
+
+/** Steer tread: four continuous circumferential ribs (deep grooves between) with siped shoulder blocks. */
+function steerTread() {
+  const parts: THREE.BufferGeometry[] = [];
+  const h = TREAD_TOP - TREAD_BASE;
+  for (const [y0, y1] of [[-0.075, -0.035], [-0.02, 0.02], [0.035, 0.075]] as Pt[]) {
+    const prof = [new THREE.Vector2(TREAD_BASE, y0), new THREE.Vector2(TREAD_BASE + h, y0 + 0.003), new THREE.Vector2(TREAD_BASE + h, y1 - 0.003), new THREE.Vector2(TREAD_BASE, y1)];
+    parts.push(new THREE.LatheGeometry(prof, 72).toNonIndexed());
+  }
+  for (const yc of [-0.108, 0.108]) parts.push(...lugRing(44, 0.06, 0.042, yc, 0, 0).map((g) => g.toNonIndexed()));
+  return mergeGeometries(parts)!;
+}
+
+/** Drive tread: deep, open-shoulder lateral lugs in two staggered, chevroned rows for traction. */
+function driveTread() {
+  const parts = [...lugRing(30, 0.075, 0.12, -0.066, 0, 0.32), ...lugRing(30, 0.075, 0.12, 0.066, Math.PI / 30, -0.32)].map((g) => g.toNonIndexed());
+  // thin centre rib ties the rows together like real drive casings
+  parts.push(new THREE.LatheGeometry([new THREE.Vector2(TREAD_BASE, -0.008), new THREE.Vector2(TREAD_BASE + 0.022, -0.006), new THREE.Vector2(TREAD_BASE + 0.022, 0.006), new THREE.Vector2(TREAD_BASE, 0.008)], 72).toNonIndexed());
+  return mergeGeometries(parts)!;
+}
+export const STEER_TREAD = steerTread();
+export const DRIVE_TREAD = driveTread();
+
+/** Ten hex lug nuts + their washers merged into one mesh, on a 0.2 bolt circle, outward face. */
+function lugNuts() {
+  const parts: THREE.BufferGeometry[] = [];
+  for (let k = 0; k < 10; k++) {
+    const a = (k * Math.PI) / 5;
+    const nut = new THREE.CylinderGeometry(0.019, 0.019, 0.034, 6);
+    nut.translate(Math.cos(a) * 0.2, 0.158, Math.sin(a) * 0.2);
+    const cap = new THREE.SphereGeometry(0.0145, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2);
+    cap.translate(Math.cos(a) * 0.2, 0.175, Math.sin(a) * 0.2);
+    const washer = new THREE.CylinderGeometry(0.025, 0.025, 0.006, 16);
+    washer.translate(Math.cos(a) * 0.2, 0.14, Math.sin(a) * 0.2);
+    parts.push(nut.toNonIndexed(), cap.toNonIndexed(), washer.toNonIndexed());
+  }
+  return mergeGeometries(parts)!;
+}
+export const LUG_NUTS = lugNuts();
+
+/** Polished domed hub cap with a flange ring. */
+const hubPts: Pt[] = [[0, 0.215], [0.04, 0.212], [0.075, 0.2], [0.1, 0.18], [0.115, 0.16], [0.14, 0.155], [0.145, 0.14], [0.11, 0.135]];
+export const HUB_CAP = new THREE.LatheGeometry(hubPts.map(([r, y]) => new THREE.Vector2(r, y)), 40);
+
+/** Valve stem: angled brass stem with a cap, poking out of the rim between two lugs. */
+function valve() {
+  const stem = new THREE.CylinderGeometry(0.007, 0.009, 0.07, 8);
+  stem.rotateZ(-0.9);
+  stem.translate(0.285, 0.135, 0);
+  const cap = new THREE.CylinderGeometry(0.01, 0.01, 0.018, 8);
+  cap.rotateZ(-0.9);
+  cap.translate(0.258, 0.158, 0);
+  const g = mergeGeometries([stem.toNonIndexed(), cap.toNonIndexed()])!;
+  g.rotateY(Math.PI / 10);
+  return g;
+}
+export const VALVE_STEM = valve();
+
+/** Flat annulus on the sidewall with polar UVs (u around, v radial) so a text texture wraps around the tyre. */
+function letterBand() {
+  const segs = 128, r0 = 0.41, r1 = 0.448, y = 0.1615;
+  const pos: number[] = [], uv: number[] = [], idx: number[] = [];
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * Math.PI * 2;
+    for (const [j, r] of [r0, r1].entries()) { pos.push(Math.cos(a) * r, y, -Math.sin(a) * r); uv.push(i / segs, j); }
+    if (i < segs) { const b = i * 2; idx.push(b, b + 2, b + 1, b + 1, b + 2, b + 3); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+export const LETTER_BAND = letterBand();
