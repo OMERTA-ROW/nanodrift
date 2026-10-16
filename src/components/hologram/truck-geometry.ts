@@ -212,3 +212,102 @@ function letterBand() {
   return g;
 }
 export const LETTER_BAND = letterBand();
+
+// ---------------------------------------------------------------------------
+// Fifth-wheel coupling (generic representative design, not an OEM part drawing).
+
+/** Top plate seen from above (x forward, shape-y = -z): round plate with a rear V-throat ramping into the kingpin slot. */
+function fifthPlate() {
+  const R = 0.62, gap = 0.3, slot = 0.045;
+  const s = new THREE.Shape();
+  s.absarc(0, 0, R, -Math.PI + gap, Math.PI - gap, false);
+  s.lineTo(-0.3, slot);
+  s.lineTo(0.0, slot);
+  s.absarc(0, 0, slot, Math.PI / 2, -Math.PI / 2, true);
+  s.lineTo(-0.3, -slot);
+  s.closePath();
+  // lube pockets
+  for (const [x, y] of [[0.3, 0.3], [0.3, -0.3], [-0.05, 0.45], [-0.05, -0.45]] as Pt[]) {
+    const h = new THREE.Path(); h.absellipse(x, y, 0.07, 0.035, 0, Math.PI * 2, false, Math.atan2(y, x) + Math.PI / 2); s.holes.push(h);
+  }
+  const g = new THREE.ExtrudeGeometry(s, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.012, bevelSegments: 2, curveSegments: 40 });
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+export const FIFTH_PLATE = fifthPlate();
+
+/** Underside ribs + rear approach ramps that drop below the plate either side of the throat. */
+function fifthUnder() {
+  const parts: THREE.BufferGeometry[] = [];
+  for (const z of [-0.3, 0, 0.3]) { if (z === 0) continue; const b = new THREE.BoxGeometry(1.1, 0.09, 0.03); b.translate(0, -0.045, z); parts.push(b); }
+  for (const z of [-0.42, 0.42]) { const b = new THREE.BoxGeometry(0.03, 0.09, 0.5); b.translate(0.15, -0.045, z); parts.push(b); }
+  for (const s of [1, -1]) { const r = new THREE.BoxGeometry(0.35, 0.03, 0.28); r.rotateZ(0.35); r.translate(-0.7, -0.03, s * 0.28); parts.push(r); }
+  return mergeGeometries(parts)!;
+}
+export const FIFTH_UNDER = fifthUnder();
+
+/** Locking jaw block around the kingpin + secondary lock bar and the pull-release handle on the driver side. */
+function fifthJaw() {
+  const parts: THREE.BufferGeometry[] = [];
+  const j = new THREE.BoxGeometry(0.22, 0.1, 0.24); j.translate(0.04, -0.07, 0); parts.push(j);
+  const bar = new THREE.CylinderGeometry(0.015, 0.015, 0.5, 8); bar.rotateX(Math.PI / 2); bar.translate(0.12, -0.1, -0.3); parts.push(bar.toNonIndexed() as THREE.BufferGeometry);
+  const handle = new THREE.TorusGeometry(0.045, 0.01, 6, 16); handle.translate(0.12, -0.1, -0.58); parts.push(handle);
+  return mergeGeometries(parts.map((p) => (p.index ? p.toNonIndexed() : p)))!;
+}
+export const FIFTH_JAW = fifthJaw();
+
+/** Rocker brackets bolted to the frame rails with the cross pivot pin (lets the plate articulate fore/aft). */
+function fifthMount() {
+  const parts: THREE.BufferGeometry[] = [];
+  for (const z of [-0.45, 0.45]) {
+    const s = new THREE.Shape(); s.moveTo(-0.22, 0); s.lineTo(0.22, 0); s.lineTo(0.1, 0.16); s.lineTo(-0.1, 0.16); s.closePath();
+    const g = new THREE.ExtrudeGeometry(s, { depth: 0.04, bevelEnabled: false }); g.translate(0, 0, z - 0.02); parts.push(g.toNonIndexed());
+    const pl = new THREE.BoxGeometry(0.7, 0.025, 0.14); pl.translate(0, 0, z); parts.push(pl.toNonIndexed());
+    for (const x of [-0.25, -0.1, 0.1, 0.25]) { const b = new THREE.CylinderGeometry(0.014, 0.014, 0.03, 6); b.translate(x, 0.025, z); parts.push(b.toNonIndexed()); }
+  }
+  const pin = new THREE.CylinderGeometry(0.035, 0.035, 1.0, 12); pin.rotateX(Math.PI / 2); pin.translate(0, 0.12, 0); parts.push(pin.toNonIndexed());
+  return mergeGeometries(parts)!;
+}
+export const FIFTH_MOUNT = fifthMount();
+
+// ---------------------------------------------------------------------------
+// Tractor-to-trailer lines: coiled air hoses + electrical cord hung from a deck-plate stand.
+
+/** Helical coil wrapped around a path from a to b. */
+export function coil(a: THREE.Vector3Tuple, b: THREE.Vector3Tuple, turns: number, rad: number, phase = 0, thick = 0.014) {
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+  const dir = B.clone().sub(A);
+  const ax = dir.clone().normalize();
+  const u = new THREE.Vector3(0, 1, 0).cross(ax).normalize();
+  if (u.lengthSq() < 1e-4) u.set(1, 0, 0);
+  const v = ax.clone().cross(u).normalize();
+  const n = turns * 16, pts: THREE.Vector3[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, th = t * turns * Math.PI * 2 + phase;
+    const sag = Math.sin(t * Math.PI) * -0.12; // coils droop under their own weight
+    pts.push(A.clone().addScaledVector(dir, t).addScaledVector(u, Math.cos(th) * rad).addScaledVector(v, Math.sin(th) * rad).add(new THREE.Vector3(0, sag, 0)));
+  }
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), n * 2, thick, 6, false);
+}
+
+/** Gladhand coupler: round body + flat seal face + tab. */
+function gladhand() {
+  const body = new THREE.CylinderGeometry(0.035, 0.035, 0.03, 16);
+  const tab = new THREE.BoxGeometry(0.09, 0.02, 0.03); tab.translate(0.05, 0, 0);
+  const neck = new THREE.CylinderGeometry(0.012, 0.012, 0.06, 8); neck.rotateZ(Math.PI / 2); neck.translate(-0.05, 0, 0);
+  return mergeGeometries([body.toNonIndexed(), tab.toNonIndexed(), neck.toNonIndexed()])!;
+}
+export const GLADHAND = gladhand();
+
+/** 7-way electrical plug: cylinder with ribbed grip. */
+function sevenWay() {
+  const parts = [new THREE.CylinderGeometry(0.04, 0.04, 0.09, 16).toNonIndexed()];
+  for (const y of [-0.025, 0, 0.025]) { const r = new THREE.TorusGeometry(0.042, 0.005, 4, 16); r.rotateX(Math.PI / 2); r.translate(0, y, 0); parts.push(r.toNonIndexed()); }
+  return mergeGeometries(parts)!;
+}
+export const SEVEN_WAY = sevenWay();
+
+/** P-clamps along the frame rail for routed lines; merged into one mesh. */
+export function clamps(points: THREE.Vector3Tuple[], r = 0.03) {
+  return mergeGeometries(points.map(([x, y, z]) => { const t = new THREE.TorusGeometry(r, 0.008, 5, 12); t.rotateY(Math.PI / 2); t.translate(x, y, z); return t.toNonIndexed(); }))!;
+}
