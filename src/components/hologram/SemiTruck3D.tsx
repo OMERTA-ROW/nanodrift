@@ -327,6 +327,12 @@ function Tube({ id, pts, color, r = 0.03, flow = 0 }: { id: string; pts: V3[]; c
 }
 
 const PAINT = "#0b0910";
+// Coiled trailer lines from the back-of-cab bulkhead fittings to the line stand (shared, built once).
+const COIL_RED = TG.coil([-1.0, 2.15, 0.2], [-2.05, 1.62, 0.12], 9, 0.05, 0);
+const COIL_BLUE = TG.coil([-1.0, 2.0, 0.34], [-2.05, 1.62, 0.3], 9, 0.05, 1.5);
+const COIL_ELEC = TG.coil([-1.0, 2.3, -0.1], [-2.05, 1.62, -0.12], 8, 0.06, 0.7, 0.018);
+// P-clamps where air/electrical runs are tied to the frame rails.
+const FRAME_CLAMPS = TG.clamps([[2.0, 0.85, 0.5], [0, 0.82, 0.42], [-1.5, 0.82, 0.42], [-2.6, 0.82, 0.42], [1.0, 1.1, -0.52], [-0.5, 1.1, -0.52], [-2.0, 1.1, -0.52], [-3.4, 1.1, -0.52]]);
 const FENDER = TG.fender(3.6, 0.52);
 const CHROME = "#e6dcc0";
 const RUBBER = "#0c0c0d";
@@ -727,7 +733,16 @@ function Semi() {
         {[3.9, 1.5, -1.0, -3.2, -4.0].map((x) => (
           <P key={x} id="frame" position={[x, 0.95, 0]} color="#2a2530" metal={0.8} rough={0.4}><boxGeometry args={[0.1, 0.2, 0.8]} /></P>
         ))}
-        <P id="fifth" position={[-3.2, 1.14, 0]} color="#3a3540" metal={0.9} rough={0.3} emissive={GOLD} glow={0.1}><cylinderGeometry args={[0.6, 0.6, 0.08, 32]} /></P>
+        {/* Fifth wheel: pivot mount on the rails, rocker pin, greased top plate with throat + kingpin slot, locking jaw */}
+        <group position={[-3.2, 1.09, 0]}>
+          <P id="fifth" color="#2a2530" metal={0.8} rough={0.45} geometry={TG.FIFTH_MOUNT} />
+          <group position={[0, 0.2, 0]}>
+            <P id="fifth" color="#16130f" metal={0.4} rough={0.16} geometry={TG.FIFTH_PLATE} />
+            <P id="fifth" color="#2a2530" metal={0.8} rough={0.45} geometry={TG.FIFTH_UNDER} />
+            <P id="fifth" color="#7a6a4a" metal={0.85} rough={0.35} emissive={GOLD} glow={0.08} geometry={TG.FIFTH_JAW} />
+          </group>
+        </group>
+        <P id="frame" color="#1c1a20" metal={0.8} rough={0.4} geometry={FRAME_CLAMPS} />
         <P id="steer" position={[3.6, 0.55, 0]} rotation={[Math.PI / 2, 0, 0]} color="#3a3540" metal={0.9}><cylinderGeometry args={[0.07, 0.07, 1.8, 12]} /></P>
         <Wheel x={3.6} z={1.05} steer /><Wheel x={3.6} z={-1.05} steer />
         {[-2.6, -3.8].map((x) => (<group key={x}><Wheel x={x} z={1.08} dual /><Wheel x={x} z={-1.08} dual /></group>))}
@@ -777,6 +792,9 @@ function Semi() {
         <Tube id="audiowire" color={GOLD} r={0.012} flow={1.8} pts={[[1.95, 2.25, -0.15], [1.8, 1.8, -0.6], [1.5, 1.7, -1.08]]} />
         <Tube id="audiowire" color={GOLD} r={0.012} flow={1.8} pts={[[1.95, 2.3, 0], [1.0, 3.0, 0], [0.2, 3.0, 0.6], [-0.3, 2.9, 1.1]]} />
         <Tube id="audiowire" color={GOLD} r={0.012} flow={1.8} pts={[[1.95, 2.3, 0], [1.0, 3.05, 0], [0.2, 3.0, -0.6], [-0.3, 2.9, -1.1]]} />
+        {/* Trailer electrical: green 7-way coil from the back of the sleeper to the stand */}
+        <P id="harness" color="#1f5a2a" metal={0} rough={0.6} geometry={COIL_ELEC} />
+        <P id="harness" position={[-2.05, 1.62, -0.12]} rotation={[0, 0, Math.PI / 2]} color="#141414" metal={0.2} rough={0.6} geometry={TG.SEVEN_WAY} />
       </Layer>
 
       {/* 4 — Fluid lines */}
@@ -790,6 +808,12 @@ function Semi() {
         <Tube id="coolant" color={COOLANT} r={0.045} flow={1.5} pts={[[4.1, 1.92, 0.3], [3.9, 2.0, 0.3], [3.7, 1.9, 0.2], [3.65, 1.85, 0]]} />
         <Tube id="coolant" color={COOLANT} r={0.045} flow={1.5} pts={[[4.1, 1.3, -0.3], [3.9, 1.22, -0.35], [3.7, 1.3, -0.38], [3.5, 1.35, -0.36]]} />
         <Tube id="oil" color="#e0b84a" r={0.025} flow={1} pts={[[2.6, 1.3, 0.36], [2.4, 1.15, 0.5], [2.9, 1.1, 0.55], [3.5, 1.2, 0.4]]} />
+        {/* Trailer air: red (emergency) + blue (service) coils, gladhands parked on the deck-plate stand */}
+        <P id="air" color="#8a1414" metal={0} rough={0.55} geometry={COIL_RED} />
+        <P id="air" color="#173d8a" metal={0} rough={0.55} geometry={COIL_BLUE} />
+        <P id="air" position={[-2.05, 1.62, 0.12]} color="#b02020" metal={0.7} rough={0.35} geometry={TG.GLADHAND} />
+        <P id="air" position={[-2.05, 1.62, 0.3]} color="#2050b0" metal={0.7} rough={0.35} geometry={TG.GLADHAND} />
+        <P id="air" position={[-2.05, 1.3, 0.1]} color="#2a2530" metal={0.8} rough={0.4}><boxGeometry args={[0.05, 0.75, 0.05]} /></P>
         <Tube id="air" color={PURPLE} r={0.015} flow={0.8} pts={[[2.5, 0.8, 0.4], [0, 0.8, 0.4], [-2.6, 0.8, 0.4], [-3.8, 0.75, 0.4], [-4.1, 1.1, 0.3]]} />
       </Layer>
     </group>
