@@ -348,6 +348,7 @@ const PAINT = "#0b0910";
 const FENDER = TG.fender(3.6, 0.52);
 const CHROME = "#e6dcc0";
 const RUBBER = "#0c0c0d";
+const GLASS = "#0a0d14";
 
 function Wheel({ x, z, dual }: { x: number; z: number; dual?: boolean }) {
   const s = Math.sign(z);
@@ -620,6 +621,15 @@ function Semi() {
         ))}
         {[1.03, -1.03].map((z) => (
           <P key={`st${z}`} id="hood" position={[2.55, 0.98, z]} color="#2a2530" metal={0.8} rough={0.35}><boxGeometry args={[0.7, 0.05, 0.4]} /></P>
+        ))}
+        {/* Hood side louvres + chrome belt trim */}
+        {[1, -1].map((sd) => (
+          <group key={`lv${sd}`}>
+            {Array.from({ length: 6 }, (_, i) => (
+              <P key={i} id="hood" position={[3.0 + i * 0.16, 1.72, sd * 0.83]} rotation={[0, 0, 0.35]} color="#08070b" metal={0.6} rough={0.5}><boxGeometry args={[0.04, 0.32, 0.02]} /></P>
+            ))}
+            <P id="hood" position={[3.25, 1.2, sd * 0.84]} color={CHROME} metal={1} rough={0.1}><boxGeometry args={[2.1, 0.03, 0.015]} /></P>
+          </group>
         ))}
         {/* Grille: chrome surround, dark mesh, horizontal bars */}
         <P id="grille" position={[4.36, 1.62, 0]} rotation={[0, Math.PI / 2, 0]} color={CHROME} metal={1} rough={0.1} geometry={TG.GRILLE_FRAME} />
