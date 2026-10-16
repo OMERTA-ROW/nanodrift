@@ -155,24 +155,6 @@ function flake() {
   return flakeTex;
 }
 
-let treadTex: THREE.CanvasTexture | null = null;
-/** Lug-style tread blocks + sidewall ribs as a bump map so tyres stop reading as smooth rings. */
-function tread() {
-  if (treadTex) return treadTex;
-  const c = document.createElement("canvas");
-  c.width = 512; c.height = 64;
-  const g = c.getContext("2d")!;
-  g.fillStyle = "#9a9a9a"; g.fillRect(0, 0, 512, 64);
-  g.fillStyle = "#202020";
-  for (let x = 0; x < 512; x += 16) { g.fillRect(x, 18, 6, 28); g.fillRect(x + 8, 0, 3, 64); }
-  g.fillStyle = "#606060";
-  for (let y = 4; y < 64; y += 10) g.fillRect(0, y, 512, 1);
-  treadTex = new THREE.CanvasTexture(c);
-  treadTex.wrapS = treadTex.wrapT = THREE.RepeatWrapping;
-  treadTex.repeat.set(3, 1);
-  return treadTex;
-}
-
 /** Concrete shop floor: mottled albedo with expansion joints. */
 function concrete() {
   const c = document.createElement("canvas");
