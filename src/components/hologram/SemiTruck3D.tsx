@@ -1,7 +1,7 @@
 import { modelPartToComponent } from "@/lib/parts-catalog";
 import * as TG from "./truck-geometry";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { AdaptiveDpr, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor } from "@react-three/drei";
+import { AdaptiveDpr, Detailed, ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor } from "@react-three/drei";
 import { EffectComposer, N8AO, SMAA, Vignette } from "@react-three/postprocessing";
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
@@ -253,7 +253,7 @@ function Garage({ hi }: { hi: boolean }) {
 function surfaceFor(color: string, metal: number, rough: number): Partial<THREE.MeshPhysicalMaterialParameters> {
   if (color === PAINT) return { metalness: 0.55, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, roughnessMap: flake(), sheen: 0.12, sheenRoughness: 0.5, sheenColor: new THREE.Color(PURPLE_DEEP) };
   if (color === GLASS) return { metalness: 0, roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0, envMapIntensity: 2.4, ior: 1.5, reflectivity: 0.9, specularIntensity: 1 };
-  if (color === RUBBER) return { metalness: 0, roughness: 0.88, bumpMap: tread(), bumpScale: 1.2, roughnessMap: grain(), envMapIntensity: 0.4 };
+  if (color === RUBBER) return { metalness: 0, roughness: 0.88, bumpMap: grain(), bumpScale: 0.35, roughnessMap: grain(), envMapIntensity: 0.4 };
   if (metal < 0.15 && rough >= 0.8) return { metalness: 0, roughness: 0.92, sheen: 0.4, sheenRoughness: 0.8, sheenColor: new THREE.Color("#3a3340"), bumpMap: grain(), bumpScale: 0.6 };
   if (metal >= 0.9 && rough <= 0.2) return { metalness: 1, roughness: Math.max(rough * 0.6, 0.04), clearcoat: 0.3, clearcoatRoughness: 0.1, envMapIntensity: 2.2 };
   if (metal >= 0.5) return { metalness: metal, roughness: Math.min(1, rough + 0.08), roughnessMap: grain(), bumpMap: grain(), bumpScale: 0.25 };
@@ -350,19 +350,75 @@ const CHROME = "#e6dcc0";
 const RUBBER = "#0c0c0d";
 const GLASS = "#0a0d14";
 
-function Wheel({ x, z, dual }: { x: number; z: number; dual?: boolean }) {
+let letterTex: THREE.CanvasTexture | null = null;
+/** Moulded sidewall lettering (generic, unbranded size/load markings) drawn once as a raised-text bump + tint. */
+function lettering() {
+  if (letterTex) return letterTex;
+  const c = document.createElement("canvas");
+  c.width = 2048; c.height = 64;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#000"; g.fillRect(0, 0, 2048, 64);
+  g.fillStyle = "#fff";
+  g.font = "bold 38px sans-serif";
+  g.textBaseline = "middle";
+  const txt = ["295/75R22.5", "LOAD RANGE G", "TUBELESS", "HD REGROOVABLE", "295/75R22.5", "MAX LOAD 6175 LBS"];
+  let x = 20;
+  for (const t of txt) { g.fillText(t, x, 34); x += g.measureText(t).width + 90; }
+  letterTex = new THREE.CanvasTexture(c);
+  letterTex.anisotropy = 4;
+  return letterTex;
+}
+
+function SidewallText() {
+  const { ghost } = useContext(LayerCtx);
+  const tex = useMemo(() => lettering(), []);
+  return (
+    <mesh geometry={TG.LETTER_BAND} raycast={() => null} visible={!ghost}>
+      <meshStandardMaterial color="#141416" roughness={0.75} bumpMap={tex} bumpScale={2} emissiveMap={tex} emissive="#3a3a40" emissiveIntensity={0.35} transparent alphaMap={tex} alphaTest={0.4} polygonOffset polygonOffsetFactor={-2} />
+    </mesh>
+  );
+}
+
+/** One tyre + wheel. Near the camera: real tread lugs, ribs, lettering, lug nuts, valve. Far away: carcass + rim only. */
+function TyreAssembly({ s, steer, outer }: { s: number; steer?: boolean; outer: boolean }) {
+  const flip: V3 = [s < 0 ? Math.PI : 0, 0, 0];
+  const base = (
+    <>
+      <P id="wheels" color={RUBBER} metal={0} rough={0.9} geometry={TG.TYRE_CARCASS} />
+      <P id="wheels" color={CHROME} metal={1} rough={0.12} rotation={flip} geometry={TG.RIM} />
+    </>
+  );
+  return (
+    <Detailed distances={[0, 22]}>
+      <group>
+        {base}
+        <P id="wheels" color={RUBBER} metal={0} rough={0.85} geometry={steer ? TG.STEER_TREAD : TG.DRIVE_TREAD} />
+        <group rotation={flip}>
+          <P id="wheels" color={RUBBER} metal={0} rough={0.8} geometry={TG.TYRE_RIBS} />
+          {outer && (
+            <>
+              <SidewallText />
+              <P id="wheels" color={CHROME} metal={1} rough={0.06} geometry={TG.HUB_CAP} />
+              <P id="wheels" color={CHROME} metal={1} rough={0.1} geometry={TG.LUG_NUTS} />
+              <P id="wheels" color="#b08a3a" metal={1} rough={0.3} geometry={TG.VALVE_STEM} />
+            </>
+          )}
+        </group>
+      </group>
+      <group>{base}</group>
+    </Detailed>
+  );
+}
+
+function Wheel({ x, z, dual, steer }: { x: number; z: number; dual?: boolean; steer?: boolean }) {
   const s = Math.sign(z);
-  const offs = dual ? [0, -0.32 * s] : [0];
+  // Duals: inner tyre sits 0.3 inboard with a small air gap; only the outboard face carries hub/lugs/lettering.
+  const offs = dual ? [0, -0.3 * s] : [0];
   return (
     <>
-      {offs.map((o) => (
-        <group key={o} position={[x, 0.52, z + o]} rotation={[Math.PI / 2, 0, 0]}>
-          <P id="wheels" color={RUBBER} metal={0} rough={0.9} geometry={TG.TYRE} />
-          <P id="wheels" color={CHROME} metal={1} rough={0.12} rotation={[s < 0 ? Math.PI : 0, 0, 0]} geometry={TG.RIM} />
-          <P id="wheels" color={STEEL} metal={0.8} rough={0.4} position={[0, s * 0.14, 0]}><cylinderGeometry args={[0.1, 0.13, 0.05, 24]} /></P>
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => (
-            <P key={k} id="wheels" color={CHROME} metal={1} rough={0.2} position={[Math.cos((k * Math.PI) / 5) * 0.2, s * 0.155, Math.sin((k * Math.PI) / 5) * 0.2]}><cylinderGeometry args={[0.022, 0.022, 0.05, 6]} /></P>
-          ))}
+      {offs.map((o, i) => (
+        <group key={o} position={[x, 0.525, z + o]} rotation={[Math.PI / 2, 0, 0]}>
+          <TyreAssembly s={s} steer={steer} outer={i === 0} />
         </group>
       ))}
     </>
@@ -691,7 +747,7 @@ function Semi() {
         ))}
         <P id="fifth" position={[-3.2, 1.14, 0]} color="#3a3540" metal={0.9} rough={0.3} emissive={GOLD} glow={0.1}><cylinderGeometry args={[0.6, 0.6, 0.08, 32]} /></P>
         <P id="steer" position={[3.6, 0.55, 0]} rotation={[Math.PI / 2, 0, 0]} color="#3a3540" metal={0.9}><cylinderGeometry args={[0.07, 0.07, 1.8, 12]} /></P>
-        <Wheel x={3.6} z={1.05} /><Wheel x={3.6} z={-1.05} />
+        <Wheel x={3.6} z={1.05} steer /><Wheel x={3.6} z={-1.05} steer />
         {[-2.6, -3.8].map((x) => (<group key={x}><Wheel x={x} z={1.08} dual /><Wheel x={x} z={-1.08} dual /></group>))}
       </Layer>
 
