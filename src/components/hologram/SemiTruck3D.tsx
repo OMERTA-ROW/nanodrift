@@ -251,7 +251,7 @@ function Garage({ hi }: { hi: boolean }) {
 
 /** Splits parts into paint / chrome / cast metal / rubber / plastic so each reads as a different real surface. */
 function surfaceFor(color: string, metal: number, rough: number): Partial<THREE.MeshPhysicalMaterialParameters> {
-  if (color === PAINT) return { metalness: 0.55, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, roughnessMap: flake(), sheen: 0.35, sheenRoughness: 0.4, sheenColor: new THREE.Color(PURPLE_DEEP) };
+  if (color === PAINT) return { metalness: 0.55, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, roughnessMap: flake(), sheen: 0.12, sheenRoughness: 0.5, sheenColor: new THREE.Color(PURPLE_DEEP) };
   if (color === GLASS) return { metalness: 0, roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0, envMapIntensity: 2.4, ior: 1.5, reflectivity: 0.9, specularIntensity: 1 };
   if (color === RUBBER) return { metalness: 0, roughness: 0.88, bumpMap: tread(), bumpScale: 1.2, roughnessMap: grain(), envMapIntensity: 0.4 };
   if (metal < 0.15 && rough >= 0.8) return { metalness: 0, roughness: 0.92, sheen: 0.4, sheenRoughness: 0.8, sheenColor: new THREE.Color("#3a3340"), bumpMap: grain(), bumpScale: 0.6 };
