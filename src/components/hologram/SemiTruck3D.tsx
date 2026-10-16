@@ -136,11 +136,126 @@ function grain() {
   return grainTex;
 }
 
+let flakeTex: THREE.CanvasTexture | null = null;
+/** Fine metallic-flake roughness variation so the clearcoat paint breaks up highlights like real metallic paint. */
+function flake() {
+  if (flakeTex) return flakeTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const g = c.getContext("2d")!;
+  const img = g.createImageData(256, 256);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = Math.random() < 0.08 ? 40 : 110 + Math.random() * 40;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  flakeTex = new THREE.CanvasTexture(c);
+  flakeTex.wrapS = flakeTex.wrapT = THREE.RepeatWrapping;
+  flakeTex.repeat.set(8, 8);
+  return flakeTex;
+}
+
+let treadTex: THREE.CanvasTexture | null = null;
+/** Lug-style tread blocks + sidewall ribs as a bump map so tyres stop reading as smooth rings. */
+function tread() {
+  if (treadTex) return treadTex;
+  const c = document.createElement("canvas");
+  c.width = 512; c.height = 64;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#9a9a9a"; g.fillRect(0, 0, 512, 64);
+  g.fillStyle = "#202020";
+  for (let x = 0; x < 512; x += 16) { g.fillRect(x, 18, 6, 28); g.fillRect(x + 8, 0, 3, 64); }
+  g.fillStyle = "#606060";
+  for (let y = 4; y < 64; y += 10) g.fillRect(0, y, 512, 1);
+  treadTex = new THREE.CanvasTexture(c);
+  treadTex.wrapS = treadTex.wrapT = THREE.RepeatWrapping;
+  treadTex.repeat.set(3, 1);
+  return treadTex;
+}
+
+/** Concrete shop floor: mottled albedo with expansion joints. */
+function concrete() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 512;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#1b1a1e"; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 2500; i++) {
+    const a = Math.random() * 0.06;
+    g.fillStyle = `rgba(${Math.random() < 0.5 ? "255,255,255" : "0,0,0"},${a})`;
+    const r = 2 + Math.random() * 18;
+    g.beginPath(); g.arc(Math.random() * 512, Math.random() * 512, r, 0, Math.PI * 2); g.fill();
+  }
+  g.strokeStyle = "rgba(0,0,0,0.6)"; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(0, 2); g.lineTo(512, 2); g.moveTo(2, 0); g.lineTo(2, 512); g.stroke();
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(10, 10);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+/** Shop bay set dressing: back wall, ceiling strip lights, purple neon trim and a floor guide line. Not interactive. */
+function Garage({ hi }: { hi: boolean }) {
+  const floor = useMemo(() => concrete(), []);
+  const strips = [-6, -2, 2, 6];
+  return (
+    <group>
+      {/* Back + side walls (dark panelled) */}
+      <mesh position={[0, 5, -11]} receiveShadow raycast={() => null}>
+        <planeGeometry args={[40, 10]} />
+        <meshStandardMaterial color="#0d0b10" roughness={0.85} metalness={0.2} />
+      </mesh>
+      {[-1, 1].map((s) => (
+        <mesh key={s} position={[s * 18, 5, 0]} rotation-y={-s * Math.PI / 2} raycast={() => null}>
+          <planeGeometry args={[30, 10]} />
+          <meshStandardMaterial color="#0b090d" roughness={0.9} />
+        </mesh>
+      ))}
+      {/* Vertical wall ribs */}
+      {Array.from({ length: 9 }, (_, i) => (
+        <mesh key={i} position={[-16 + i * 4, 4, -10.9]} raycast={() => null}>
+          <boxGeometry args={[0.18, 8, 0.15]} />
+          <meshStandardMaterial color="#17141b" metalness={0.7} roughness={0.4} />
+        </mesh>
+      ))}
+      {/* Purple neon trim along the wall base and top */}
+      {[0.35, 7.6].map((y) => (
+        <mesh key={y} position={[0, y, -10.85]} raycast={() => null}>
+          <boxGeometry args={[34, 0.06, 0.04]} />
+          <meshBasicMaterial color={PURPLE} toneMapped={false} />
+        </mesh>
+      ))}
+      {/* Overhead LED strip fixtures (visible + they match the env reflections) */}
+      {strips.map((z) => (
+        <mesh key={z} position={[0, 8.5, z * 0.8]} rotation-x={Math.PI / 2} raycast={() => null}>
+          <planeGeometry args={[12, 0.25]} />
+          <meshBasicMaterial color="#f4f0ff" toneMapped={false} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+      {/* Painted bay outline on the floor */}
+      {[-1, 1].map((s) => (
+        <mesh key={`bay${s}`} rotation-x={-Math.PI / 2} position={[0, 0.006, s * 2.6]} raycast={() => null}>
+          <planeGeometry args={[12, 0.08]} />
+          <meshBasicMaterial color={GOLD} transparent opacity={0.55} />
+        </mesh>
+      ))}
+      {hi && <rectAreaLight position={[0, 6, -10.5]} width={20} height={1} intensity={4} color={PURPLE} />}
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.002, 0]} raycast={() => null} receiveShadow>
+        <planeGeometry args={[60, 60]} />
+        <meshStandardMaterial map={floor} roughness={0.75} metalness={0.05} transparent opacity={0.55} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
 /** Splits parts into paint / chrome / cast metal / rubber / plastic so each reads as a different real surface. */
 function surfaceFor(color: string, metal: number, rough: number): Partial<THREE.MeshPhysicalMaterialParameters> {
-  if (color === PAINT) return { metalness: 0.35, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 };
+  if (color === PAINT) return { metalness: 0.55, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, roughnessMap: flake(), sheen: 0.12, sheenRoughness: 0.5, sheenColor: new THREE.Color(PURPLE_DEEP) };
+  if (color === GLASS) return { metalness: 0, roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0, envMapIntensity: 2.4, ior: 1.5, reflectivity: 0.9, specularIntensity: 1 };
+  if (color === RUBBER) return { metalness: 0, roughness: 0.88, bumpMap: tread(), bumpScale: 1.2, roughnessMap: grain(), envMapIntensity: 0.4 };
   if (metal < 0.15 && rough >= 0.8) return { metalness: 0, roughness: 0.92, sheen: 0.4, sheenRoughness: 0.8, sheenColor: new THREE.Color("#3a3340"), bumpMap: grain(), bumpScale: 0.6 };
-  if (metal >= 0.9 && rough <= 0.2) return { metalness: 1, roughness: Math.max(rough, 0.08), clearcoat: 0.3, clearcoatRoughness: 0.1 };
+  if (metal >= 0.9 && rough <= 0.2) return { metalness: 1, roughness: Math.max(rough * 0.6, 0.04), clearcoat: 0.3, clearcoatRoughness: 0.1, envMapIntensity: 2.2 };
   if (metal >= 0.5) return { metalness: metal, roughness: Math.min(1, rough + 0.08), roughnessMap: grain(), bumpMap: grain(), bumpScale: 0.25 };
   return { metalness: Math.min(metal, 0.1), roughness: Math.max(rough, 0.45), clearcoat: 0.15, clearcoatRoughness: 0.4 };
 }
@@ -233,6 +348,7 @@ const PAINT = "#0b0910";
 const FENDER = TG.fender(3.6, 0.52);
 const CHROME = "#e6dcc0";
 const RUBBER = "#0c0c0d";
+const GLASS = "#0a0d14";
 
 function Wheel({ x, z, dual }: { x: number; z: number; dual?: boolean }) {
   const s = Math.sign(z);
@@ -506,6 +622,15 @@ function Semi() {
         {[1.03, -1.03].map((z) => (
           <P key={`st${z}`} id="hood" position={[2.55, 0.98, z]} color="#2a2530" metal={0.8} rough={0.35}><boxGeometry args={[0.7, 0.05, 0.4]} /></P>
         ))}
+        {/* Hood side louvres + chrome belt trim */}
+        {[1, -1].map((sd) => (
+          <group key={`lv${sd}`}>
+            {Array.from({ length: 6 }, (_, i) => (
+              <P key={i} id="hood" position={[3.0 + i * 0.16, 1.72, sd * 0.83]} rotation={[0, 0, 0.35]} color="#08070b" metal={0.6} rough={0.5}><boxGeometry args={[0.04, 0.32, 0.02]} /></P>
+            ))}
+            <P id="hood" position={[3.25, 1.2, sd * 0.84]} color={CHROME} metal={1} rough={0.1}><boxGeometry args={[2.1, 0.03, 0.015]} /></P>
+          </group>
+        ))}
         {/* Grille: chrome surround, dark mesh, horizontal bars */}
         <P id="grille" position={[4.36, 1.62, 0]} rotation={[0, Math.PI / 2, 0]} color={CHROME} metal={1} rough={0.1} geometry={TG.GRILLE_FRAME} />
         <P id="grille" position={[4.35, 1.62, 0]} color="#08070b" metal={0.6} rough={0.6}><boxGeometry args={[0.02, 0.9, 0.95]} /></P>
@@ -526,10 +651,10 @@ function Semi() {
         ))}
         {/* Cab, raked windshield, side glass, visor, marker lights, mirrors */}
         <P id="cab" color={PAINT} metal={0.7} rough={0.18} geometry={TG.CAB} />
-        <P id="cab" position={[2.15, 2.56, 0]} rotation={[0, 0, TG.WINDSHIELD_ANGLE]} color="#0a0d14" metal={0.2} rough={0.02}><boxGeometry args={[0.03, 0.8, 1.9]} /></P>
+        <P id="cab" position={[2.15, 2.56, 0]} rotation={[0, 0, TG.WINDSHIELD_ANGLE]} color={GLASS} metal={0.2} rough={0.02}><boxGeometry args={[0.03, 0.8, 1.9]} /></P>
         <P id="cab" position={[2.26, 2.04, 0]} color={CHROME} metal={1} rough={0.12}><boxGeometry args={[0.02, 0.04, 1.96]} /></P>
         {[1.15, -1.15].map((z) => (
-          <P key={`sw${z}`} id="cab" position={[0, z < 0 ? 5.18 : 0, z]} rotation={[z < 0 ? Math.PI : 0, 0, 0]} color="#0a0d14" metal={0.2} rough={0.02} geometry={TG.SIDE_WINDOW} />
+          <P key={`sw${z}`} id="cab" position={[0, z < 0 ? 5.18 : 0, z]} rotation={[z < 0 ? Math.PI : 0, 0, 0]} color={GLASS} metal={0.2} rough={0.02} geometry={TG.SIDE_WINDOW} />
         ))}
         <P id="cab" position={[2.05, 3.1, 0]} rotation={[0, 0, -0.25]} color={PAINT} metal={0.7} rough={0.2}><boxGeometry args={[0.35, 0.04, 2.1]} /></P>
         {[-0.6, -0.3, 0, 0.3, 0.6].map((z) => (
@@ -682,7 +807,7 @@ export default function SemiTruck3D() {
         <PerformanceMonitor onDecline={() => quality === "auto" && setAutoLow(true)} />
         <AdaptiveDpr pixelated={false} />
         <color attach="background" args={["#050307"]} />
-        <fog attach="fog" args={["#050307", 16, 40]} />
+        <fog attach="fog" args={["#050307", 20, 48]} />
         <hemisphereLight args={["#d9d0ff", "#0a0610", 0.35]} />
         {/* Studio key, rim and fill lights */}
         <spotLight position={[8, 12, 6]} angle={0.45} penumbra={0.8} intensity={260} color="#fff4e0" castShadow shadow-mapSize={hi ? [2048, 2048] : [1024, 1024]} shadow-bias={-0.0004} shadow-normalBias={0.02} />
@@ -690,7 +815,9 @@ export default function SemiTruck3D() {
         <pointLight position={[-6, 3, -4]} intensity={50} color={PURPLE} />
         <pointLight position={[5, 2, -5]} intensity={25} color={GOLD} />
         <Environment resolution={hi ? 512 : 128}>
-          <Lightformer form="rect" intensity={3} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[14, 5, 1]} />
+          {[-6, -2, 2, 6].map((z) => (
+            <Lightformer key={z} form="rect" intensity={4} position={[0, 7, z]} rotation-x={Math.PI / 2} scale={[14, 0.5, 1]} />
+          ))}
           <Lightformer intensity={2.5} color={PURPLE} position={[-8, 2, 0]} rotation-y={Math.PI / 2} scale={[16, 1.5, 1]} />
           <Lightformer intensity={1.8} color={GOLD} position={[8, 1.5, -2]} rotation-y={-Math.PI / 2} scale={[14, 0.8, 1]} />
           <Lightformer intensity={1.5} position={[0, 2, 8]} scale={[10, 1, 1]} />
@@ -703,7 +830,7 @@ export default function SemiTruck3D() {
           <planeGeometry args={[60, 60]} />
           <MeshReflectorMaterial blur={[300, 80]} resolution={hi ? 1024 : 256} mixBlur={1} mixStrength={14} roughness={0.9} depthScale={1} minDepthThreshold={0.4} maxDepthThreshold={1.4} color="#08060b" metalness={0.6} mirror={0.5} />
         </mesh>
-        <gridHelper args={[24, 48, PURPLE_DEEP, "#1d1428"]} position={[0, 0.002, 0]} />
+        <Garage hi={hi} />
         <GlowHalo />
         <ContactShadows position={[0, 0.003, 0]} opacity={0.7} scale={16} blur={2.4} far={4} resolution={hi ? 1024 : 256} />
         {hi && (
