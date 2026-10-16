@@ -400,7 +400,7 @@ function Wheel({ x, z, dual, steer }: { x: number; z: number; dual?: boolean; st
     <>
       {offs.map((o, i) => (
         <group key={o} position={[x, 0.525, z + o]} rotation={[Math.PI / 2, 0, 0]}>
-          <TyreAssembly s={s} steer={steer} outer={i === 0} />
+          <TyreAssembly s={s} steer={!!steer} outer={i === 0} />
         </group>
       ))}
     </>
